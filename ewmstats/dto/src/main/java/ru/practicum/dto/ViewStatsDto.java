@@ -8,7 +8,6 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(of = {"app", "uri", "hits"})
-
 public class ViewStatsDto {
     private String app;
     private String uri;
