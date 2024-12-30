@@ -1,15 +1,17 @@
 package ru.practicum.dto;
 
 import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 @Getter
 @Setter
 @ToString
+@EqualsAndHashCode(of = {"app", "uri", "hits"})
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode(of = {"app", "uri", "hits"})
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class ViewStatsDto {
-    private String app;
-    private String uri;
-    private Long hits;
+    String app;
+    String uri;
+    Long hits;
 }
