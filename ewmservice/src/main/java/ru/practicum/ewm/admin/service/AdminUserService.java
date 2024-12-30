@@ -1,15 +1,11 @@
 package ru.practicum.ewm.admin.service;
 
-import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.base.dto.NewUserRequest;
 import ru.practicum.ewm.base.dto.UserDto;
 import ru.practicum.ewm.base.exceptions.NotFoundException;

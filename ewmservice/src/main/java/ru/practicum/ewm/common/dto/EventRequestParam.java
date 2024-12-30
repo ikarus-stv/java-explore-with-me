@@ -2,7 +2,6 @@ package ru.practicum.ewm.common.dto;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.*;
-import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
 import java.util.List;

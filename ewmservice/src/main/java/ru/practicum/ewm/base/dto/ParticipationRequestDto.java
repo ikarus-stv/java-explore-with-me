@@ -3,7 +3,6 @@ package ru.practicum.ewm.base.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
-import lombok.experimental.FieldDefaults;
 import ru.practicum.ewm.base.enums.Statuses;
 
 import java.time.LocalDateTime;

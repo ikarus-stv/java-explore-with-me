@@ -1,7 +1,5 @@
 package ru.practicum.ewm.base.mapper;
 
-import lombok.experimental.UtilityClass;
-
 import java.time.LocalDateTime;
 
 public class DateTimeMapper {

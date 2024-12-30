@@ -1,7 +1,6 @@
 package ru.practicum.ewm.base.model;
 
 import jakarta.persistence.Embeddable;
-import lombok.experimental.FieldDefaults;
 import lombok.*;
 
 @Embeddable
