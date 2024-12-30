@@ -25,7 +25,6 @@ import java.util.List;
 
 @Slf4j
 @Service
-
 public class AdminEventService  {
 
     private final EventRepository eventRepository;

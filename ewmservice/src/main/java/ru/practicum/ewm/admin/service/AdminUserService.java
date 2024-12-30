@@ -20,7 +20,6 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-
 public class AdminUserService {
 
     private final UserRepository userRepository;
