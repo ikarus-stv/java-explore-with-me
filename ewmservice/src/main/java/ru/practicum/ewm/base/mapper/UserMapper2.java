@@ -12,7 +12,10 @@ import java.util.List;
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public abstract class UserMapper2 {
     public abstract User mapToEntity(NewUserRequest request);
+
     public abstract UserDto mapToDto(User entity);
+
     public abstract UserShortDto mapToShortDto(User entity);
+
     public abstract List<UserDto> mapToListDto(List<User> listEntity);
 }

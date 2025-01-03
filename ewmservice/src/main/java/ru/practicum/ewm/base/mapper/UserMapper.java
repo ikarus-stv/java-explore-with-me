@@ -1,5 +1,5 @@
 package ru.practicum.ewm.base.mapper;
-
+/*
 import lombok.experimental.UtilityClass;
 import ru.practicum.ewm.base.dto.NewUserRequest;
 import ru.practicum.ewm.base.dto.UserDto;
@@ -8,7 +8,7 @@ import ru.practicum.ewm.base.model.User;
 
 import java.util.List;
 import java.util.stream.Collectors;
-
+*/
 /*
 @UtilityClass
 public class UserMapper {
