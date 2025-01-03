@@ -9,6 +9,7 @@ import ru.practicum.ewm.base.model.User;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/*
 @UtilityClass
 public class UserMapper {
 
@@ -41,3 +42,5 @@ public class UserMapper {
         return listEntity.stream().map(UserMapper::mapToDto).collect(Collectors.toList());
     }
 }
+
+ */

@@ -1,6 +1,7 @@
 package ru.practicum.ewm.base.mapper;
 
 import lombok.experimental.UtilityClass;
+import org.mapstruct.factory.Mappers;
 import ru.practicum.ewm.base.dto.*;
 import ru.practicum.ewm.base.enums.AdminStateAction;
 import ru.practicum.ewm.base.enums.States;
@@ -162,7 +163,7 @@ public class EventMapper {
         dto.setCreatedOn(entity.getCreatedOn());
         dto.setDescription(entity.getDescription());
         dto.setEventDate(entity.getEventDate());
-        dto.setInitiator(UserMapper.mapToShortDto(entity.getInitiator()));
+        dto.setInitiator(Mappers.getMapper(UserMapper2.class).mapToShortDto(entity.getInitiator()));
         dto.setLocation(new LocationDto(entity.getLocation().getLat(), entity.getLocation().getLon()));
         dto.setPaid(entity.getPaid());
         dto.setParticipantLimit(entity.getParticipantLimit());
@@ -189,7 +190,7 @@ public class EventMapper {
         dto.setCategory(CategoryMapper.mapToDto(entity.getCategory()));
         dto.setConfirmedRequests(entity.getConfirmedRequests());
         dto.setEventDate(entity.getEventDate());
-        dto.setInitiator(UserMapper.mapToShortDto(entity.getInitiator()));
+        dto.setInitiator(Mappers.getMapper(UserMapper2.class).mapToShortDto(entity.getInitiator()));
         dto.setPaid(entity.getPaid());
         dto.setTitle(entity.getTitle());
         dto.setViews(entity.getViews());

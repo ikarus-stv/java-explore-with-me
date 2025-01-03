@@ -8,7 +8,8 @@ import org.springframework.stereotype.Service;
 import ru.practicum.ewm.base.dto.NewUserRequest;
 import ru.practicum.ewm.base.dto.UserDto;
 import ru.practicum.ewm.base.exceptions.NotFoundException;
-import ru.practicum.ewm.base.mapper.UserMapper;
+//import ru.practicum.ewm.base.mapper.UserMapper;
+import ru.practicum.ewm.base.mapper.UserMapper2;
 import ru.practicum.ewm.base.model.User;
 import ru.practicum.ewm.base.repository.UserRepository;
 
@@ -21,6 +22,7 @@ import java.util.List;
 public class AdminUserService {
 
     private final UserRepository userRepository;
+    private final UserMapper2 userMapper;
 
     private User findById(Long userId) {
         return userRepository.findById(userId)
@@ -28,14 +30,14 @@ public class AdminUserService {
     }
 
     public UserDto save(NewUserRequest request) {
-        User user = UserMapper.mapToEntity(request);
+        User user = userMapper.mapToEntity(request);
 //        try {
             user = userRepository.save(user);
 //        } catch (DataIntegrityViolationException e) {
 //            throw new ConflictException(String.format("Email %s уже занят", user.getEmail()), e);
 //        }
         log.info("Сохраняем данные о пользователе {}", request.getName());
-        return UserMapper.mapToDto(user);
+        return userMapper.mapToDto(user);
     }
 
     public Collection<UserDto> getUsers(List<Long> ids, Integer from, Integer size) {
@@ -49,7 +51,7 @@ public class AdminUserService {
         }
 
         log.info("Получаем данные о {} пользователях", users.size());
-        return UserMapper.mapToListDto(users);
+        return userMapper.mapToListDto(users);
     }
 
     public void delete(Long userId) {
