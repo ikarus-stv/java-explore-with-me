@@ -1,46 +1,21 @@
 package ru.practicum.ewm.base.mapper;
-/*
-import lombok.experimental.UtilityClass;
+
+import org.mapstruct.Mapper;
+import org.mapstruct.ReportingPolicy;
 import ru.practicum.ewm.base.dto.NewUserRequest;
 import ru.practicum.ewm.base.dto.UserDto;
 import ru.practicum.ewm.base.dto.UserShortDto;
 import ru.practicum.ewm.base.model.User;
 
 import java.util.List;
-import java.util.stream.Collectors;
-*/
-/*
-@UtilityClass
-public class UserMapper {
 
-    public static User mapToEntity(NewUserRequest request) {
-        User user = new User();
-        user.setEmail(request.getEmail());
-        user.setName(request.getName());
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
+public abstract class UserMapper {
+    public abstract User mapToEntity(NewUserRequest request);
 
-        return user;
-    }
+    public abstract UserDto mapToDto(User entity);
 
-    public static UserDto mapToDto(User entity) {
-        UserDto dto = new UserDto();
-        dto.setId(entity.getId());
-        dto.setEmail(entity.getEmail());
-        dto.setName(entity.getName());
+    public abstract UserShortDto mapToShortDto(User entity);
 
-        return dto;
-    }
-
-    public static UserShortDto mapToShortDto(User entity) {
-        UserShortDto dto = new UserShortDto();
-        dto.setId(entity.getId());
-        dto.setName(entity.getName());
-
-        return dto;
-    }
-
-    public static List<UserDto> mapToListDto(List<User> listEntity) {
-        return listEntity.stream().map(UserMapper::mapToDto).collect(Collectors.toList());
-    }
+    public abstract List<UserDto> mapToListDto(List<User> listEntity);
 }
-
- */

@@ -36,13 +36,6 @@ public class AdminCategoriesController {
 
         result = service.update(request, categoryId);
 
-        /*
-        try {
-            result = service.update(request, categoryId);
-        } catch (DataIntegrityViolationException e) {
-            throw new DuplicatedDataException(e.getMessage(), e);
-        }
-*/
         return result;
     }
 

@@ -10,7 +10,7 @@ import ru.practicum.ewm.base.dto.NewUserRequest;
 import ru.practicum.ewm.base.dto.UserDto;
 import ru.practicum.ewm.base.exceptions.NotFoundException;
 //import ru.practicum.ewm.base.mapper.UserMapper;
-import ru.practicum.ewm.base.mapper.UserMapper2;
+import ru.practicum.ewm.base.mapper.UserMapper;
 import ru.practicum.ewm.base.model.User;
 import ru.practicum.ewm.base.repository.UserRepository;
 
@@ -23,7 +23,7 @@ import java.util.List;
 public class AdminUserService {
 
     private final UserRepository userRepository;
-    private final UserMapper2 userMapper = Mappers.getMapper(UserMapper2.class);
+    private final UserMapper userMapper = Mappers.getMapper(UserMapper.class);
 
     private User findById(Long userId) {
         return userRepository.findById(userId)
@@ -32,11 +32,7 @@ public class AdminUserService {
 
     public UserDto save(NewUserRequest request) {
         User user = userMapper.mapToEntity(request);
-//        try {
-            user = userRepository.save(user);
-//        } catch (DataIntegrityViolationException e) {
-//            throw new ConflictException(String.format("Email %s уже занят", user.getEmail()), e);
-//        }
+        user = userRepository.save(user);
         log.info("Сохраняем данные о пользователе {}", request.getName());
         return userMapper.mapToDto(user);
     }
