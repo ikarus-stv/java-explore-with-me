@@ -3,13 +3,11 @@ package ru.practicum.ewm.admin.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.admin.service.AdminCategoryService;
 import ru.practicum.ewm.base.dto.CategoryDto;
 import ru.practicum.ewm.base.dto.NewCategoryDto;
-import ru.practicum.ewm.base.exceptions.DuplicatedDataException;
 
 @Slf4j
 @RequiredArgsConstructor

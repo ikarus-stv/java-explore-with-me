@@ -2,7 +2,6 @@ package ru.practicum.ewm.admin.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -11,7 +10,6 @@ import ru.practicum.ewm.base.dto.UserDto;
 import ru.practicum.ewm.base.exceptions.NotFoundException;
 import ru.practicum.ewm.base.mapper.UserMapper;
 import ru.practicum.ewm.base.model.User;
-import ru.practicum.ewm.base.exceptions.ConflictException;
 import ru.practicum.ewm.base.repository.UserRepository;
 
 import java.util.Collection;
