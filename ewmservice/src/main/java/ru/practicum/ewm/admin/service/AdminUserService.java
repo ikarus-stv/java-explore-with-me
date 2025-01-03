@@ -2,6 +2,7 @@ package ru.practicum.ewm.admin.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.mapstruct.factory.Mappers;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -22,7 +23,7 @@ import java.util.List;
 public class AdminUserService {
 
     private final UserRepository userRepository;
-    private final UserMapper2 userMapper;
+    private final UserMapper2 userMapper = Mappers.getMapper(UserMapper2.class);
 
     private User findById(Long userId) {
         return userRepository.findById(userId)
