@@ -21,7 +21,7 @@ public class AdminCategoriesController {
 
     private final AdminCategoryService service;
 
-    @PostMapping()
+    @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public CategoryDto save(@RequestBody @Valid NewCategoryDto request) {
         log.info("Получен запрос POST /admin/categories c новой категорией: \"{}\"", request.getName());
@@ -35,12 +35,16 @@ public class AdminCategoriesController {
         log.info("Получен запрос PATCH /admin/categories/{}", categoryId);
 
         CategoryDto result;
+
+        result = service.update(request, categoryId);
+
+        /*
         try {
             result = service.update(request, categoryId);
         } catch (DataIntegrityViolationException e) {
             throw new DuplicatedDataException(e.getMessage(), e);
         }
-
+*/
         return result;
     }
 

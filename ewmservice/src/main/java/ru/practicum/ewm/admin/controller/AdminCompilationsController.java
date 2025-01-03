@@ -21,7 +21,7 @@ public class AdminCompilationsController {
 
     private final AdminCompilationService service;
 
-    @PostMapping()
+    @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public CompilationDto save(@RequestBody @Valid NewCompilationDto request) {
         log.info("Получен запрос POST /admin/compilations c новой подборкой: \"{}\"", request.getTitle());

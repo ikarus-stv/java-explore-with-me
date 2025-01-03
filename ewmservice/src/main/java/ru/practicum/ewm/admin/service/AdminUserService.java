@@ -31,11 +31,11 @@ public class AdminUserService {
 
     public UserDto save(NewUserRequest request) {
         User user = UserMapper.mapToEntity(request);
-        try {
+//        try {
             user = userRepository.save(user);
-        } catch (DataIntegrityViolationException e) {
-            throw new ConflictException(String.format("Email %s уже занят", user.getEmail()), e);
-        }
+//        } catch (DataIntegrityViolationException e) {
+//            throw new ConflictException(String.format("Email %s уже занят", user.getEmail()), e);
+//        }
         log.info("Сохраняем данные о пользователе {}", request.getName());
         return UserMapper.mapToDto(user);
     }

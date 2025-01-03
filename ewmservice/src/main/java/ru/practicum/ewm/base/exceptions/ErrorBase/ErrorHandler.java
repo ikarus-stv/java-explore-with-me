@@ -2,6 +2,7 @@ package ru.practicum.ewm.base.exceptions.ErrorBase;
 
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -41,6 +42,16 @@ public class ErrorHandler {
         return new ErrorResponse(
                 HttpStatus.CONFLICT.toString(),
                 "Дублирование ключевого значения",
+                e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleConflictException(final DataIntegrityViolationException e) {
+        log.error(HttpStatus.CONFLICT.getReasonPhrase(), e.getLocalizedMessage(), e.getMessage());
+        return new ErrorResponse(
+                HttpStatus.CONFLICT.toString(),
+                "Ошибка целостности данных",
                 e.getMessage());
     }
 
