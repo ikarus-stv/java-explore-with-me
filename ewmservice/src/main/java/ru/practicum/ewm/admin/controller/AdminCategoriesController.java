@@ -14,35 +14,33 @@ import ru.practicum.ewm.base.dto.NewCategoryDto;
 @RestController
 @RequestMapping("/admin/categories")
 public class AdminCategoriesController {
-    private static final String M_CAT_ID = "/{cat-id}";
-    private static final String PV_CAT_ID = "cat-id";
 
-    private final AdminCategoryService service;
+    private final AdminCategoryService adminCategoryService;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public CategoryDto save(@RequestBody @Valid NewCategoryDto request) {
-        log.info("Получен запрос POST /admin/categories c новой категорией: \"{}\"", request.getName());
-        return service.save(request);
+    public CategoryDto save(@RequestBody @Valid NewCategoryDto newCategoryDto) {
+        log.info("POST /admin/categories : \"{}\"", newCategoryDto.getName());
+        return adminCategoryService.save(newCategoryDto);
     }
 
-    @PatchMapping(M_CAT_ID)
+    @PatchMapping("/{categoryId}")
     @ResponseStatus(HttpStatus.OK)
-    public CategoryDto update(@PathVariable(PV_CAT_ID) Long categoryId,
+    public CategoryDto update(@PathVariable Long categoryId,
                               @RequestBody @Valid NewCategoryDto request) {
-        log.info("Получен запрос PATCH /admin/categories/{}", categoryId);
+        log.info("PATCH /admin/categories/{}", categoryId);
 
         CategoryDto result;
 
-        result = service.update(request, categoryId);
+        result = adminCategoryService.update(request, categoryId);
 
         return result;
     }
 
-    @DeleteMapping(M_CAT_ID)
+    @DeleteMapping("/{categoryId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable(PV_CAT_ID) Long categoryId) {
-        log.info("Получен запрос DELETE /admin/categories/{}", categoryId);
-        service.delete(categoryId);
+    public void delete(@PathVariable Long categoryId) {
+        log.info("DELETE /admin/categories/{}", categoryId);
+        adminCategoryService.delete(categoryId);
     }
 }
