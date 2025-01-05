@@ -19,28 +19,28 @@ import java.util.List;
 @RestController
 @RequestMapping("/admin/users")
 public class AdminUsersController {
-    private final AdminUserService service;
+    private final AdminUserService adminUserService;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public UserDto save(@RequestBody @Valid NewUserRequest request) {
-        log.info("Получен запрос POST /admin/users");
-        return service.save(request);
+    public UserDto post(@RequestBody @Valid NewUserRequest newUserRequest) {
+        log.info("POST /admin/users");
+        return adminUserService.save(newUserRequest);
     }
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public Collection<UserDto> getUsers(@RequestParam(required = false) List<Long> ids,
-                                        @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
-                                        @RequestParam(defaultValue = "10") @Positive Integer size) {
-        log.info("Получен запрос GET /admin/users со списком ID пользователей {} с параметрами from = {}, size = {}", ids, from, size);
-        return service.getUsers(ids, from, size);
+    public Collection<UserDto> get(@RequestParam(required = false) List<Long> ids,
+                                   @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
+                                   @RequestParam(defaultValue = "10") @Positive Integer size) {
+        log.info("GET /admin/users ID = {} from = {}, size = {}", ids, from, size);
+        return adminUserService.getUsers(ids, from, size);
     }
 
-    @DeleteMapping("/{user-id}")
+    @DeleteMapping("/{userId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable("user-id") Long userId) {
-        log.info("Получен запрос DELETE /admin/users/{}", userId);
-        service.delete(userId);
+    public void delete(@PathVariable Long userId) {
+        log.info("DELETE /admin/users/{}", userId);
+        adminUserService.delete(userId);
     }
 }

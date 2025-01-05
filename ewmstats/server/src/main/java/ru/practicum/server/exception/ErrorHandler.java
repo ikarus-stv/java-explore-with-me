@@ -13,10 +13,10 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleValidationException(final BadRequestException e) {
+    public ErrorResponse handleBadRequestException(final BadRequestException e) {
         log.info(HttpStatus.BAD_REQUEST.toString(), e.getMessage());
         return new ErrorResponse(HttpStatus.BAD_REQUEST.toString(),
-                "Ошибка в запросе",
+                "BAD_REQUEST",
                 e.getMessage());
     }
 
@@ -25,7 +25,7 @@ public class ErrorHandler {
     public ErrorResponse handleThrowable(final Throwable e) {
         log.info(HttpStatus.INTERNAL_SERVER_ERROR.toString(), e.getMessage());
         return new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.toString(),
-                "Ошибка сервера",
+                "INTERNAL_SERVER_ERROR",
                 e.getMessage());
     }
 }

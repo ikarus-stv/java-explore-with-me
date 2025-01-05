@@ -1,7 +1,6 @@
 package ru.practicum.ewm.admin.dto;
 
 import lombok.*;
-import lombok.experimental.FieldDefaults;
 import ru.practicum.ewm.base.enums.States;
 
 import java.time.LocalDateTime;
@@ -12,13 +11,12 @@ import java.util.List;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE)
 public class NewParamEventDto {
-    List<Long> users;
-    List<States> states;
-    List<Long> categories;
-    LocalDateTime rangeStart;
-    LocalDateTime rangeEnd;
-    Integer from;
-    Integer size;
+    private List<Long> users;
+    private List<States> states;
+    private List<Long> categories;
+    private LocalDateTime rangeStart;
+    private LocalDateTime rangeEnd;
+    private Integer from;
+    private Integer size;
 }

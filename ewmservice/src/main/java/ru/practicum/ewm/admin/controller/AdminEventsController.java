@@ -35,24 +35,26 @@ public class AdminEventsController {
                                               @RequestParam(required = false) LocalDateTime rangeEnd,
                                               @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
                                               @RequestParam(defaultValue = "10") @Positive Integer size) {
-        List<States> listStates = List.of();
+        List<States> listStates;
         if (states != null) {
             listStates = states.stream().map(States::from)
                     .filter(Optional::isPresent)
                     .map(Optional::get)
                     .toList();
+        } else {
+            listStates = List.of();
         }
 
         NewParamEventDto params = new NewParamEventDto(users, listStates, categories, rangeStart, rangeEnd, from, size);
-        log.info("Получен запрос GET /admin/events со списком параметров {}", params);
+        log.info("GET /admin/events : {}", params);
         return service.getEvents(params);
     }
 
-    @PatchMapping("/{event-id}")
+    @PatchMapping("/{eventId}")
     @ResponseStatus(HttpStatus.OK)
-    public EventFullDto update(@PathVariable("event-id") Long eventId,
+    public EventFullDto update(@PathVariable("eventId") Long eventId,
                                @RequestBody @Valid UpdateEventAdminRequest request) {
-        log.info("Получен запрос PATCH /admin/events/{}", eventId);
+        log.info("PATCH /admin/events/{}", eventId);
         return service.update(request, eventId);
     }
 }

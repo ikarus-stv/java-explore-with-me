@@ -16,30 +16,28 @@ import ru.practicum.ewm.base.dto.UpdateCompilationRequest;
 @RestController
 @RequestMapping("/admin/compilations")
 public class AdminCompilationsController {
-    private static final String M_COMP_ID = "/{comp-id}";
-    private static final String PV_COMP_ID = "comp-id";
 
-    private final AdminCompilationService service;
+    private final AdminCompilationService adminCompilationService;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public CompilationDto save(@RequestBody @Valid NewCompilationDto request) {
-        log.info("Получен запрос POST /admin/compilations c новой подборкой: \"{}\"", request.getTitle());
-        return service.save(request);
+        log.info("POST /admin/compilations : {}", request.getTitle());
+        return adminCompilationService.save(request);
     }
 
-    @PatchMapping(M_COMP_ID)
+    @PatchMapping("/{compId}")
     @ResponseStatus(HttpStatus.OK)
-    public CompilationDto update(@PathVariable(PV_COMP_ID) Long eventId,
+    public CompilationDto update(@PathVariable Long compId,
                                  @RequestBody @Valid UpdateCompilationRequest request) {
-        log.info("Получен запрос PATCH /admin/compilations/{} на изменение подборки", eventId);
-        return service.update(request, eventId);
+        log.info("PATCH /admin/compilations/{}", compId);
+        return adminCompilationService.update(request, compId);
     }
 
-    @DeleteMapping(M_COMP_ID)
+    @DeleteMapping("/{compId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable(PV_COMP_ID) Long compId) {
-        log.info("Получен запрос DELETE /admin/compilations/{}", compId);
-        service.delete(compId);
+    public void delete(@PathVariable Long compId) {
+        log.info("DELETE /admin/compilations/{}", compId);
+        adminCompilationService.delete(compId);
     }
 }

@@ -1,19 +1,16 @@
 package ru.practicum.server.mapper;
 
-import lombok.experimental.UtilityClass;
-
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-@UtilityClass
-public class DateTimeMapper {
+public class DateTimeConvertor {
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-    public static LocalDateTime toLocalDateTime(String date) {
-        return LocalDateTime.parse(date, FORMATTER);
+    public static LocalDateTime string2LocalDateTime(String dateAsString) {
+        return LocalDateTime.parse(dateAsString, FORMATTER);
     }
 
-    public static String toStringDate(LocalDateTime date) {
+    public static String localDateTime2String(LocalDateTime date) {
         return date.format(FORMATTER);
     }
 }

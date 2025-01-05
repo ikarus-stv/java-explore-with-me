@@ -17,31 +17,35 @@ import java.util.List;
 @RequiredArgsConstructor
 @RestController
 public class StatsController {
-    private static final String DATE_PATTERN = "yyyy-MM-dd HH:mm:ss";
+    private static final String DATE_MASK = "yyyy-MM-dd HH:mm:ss";
 
-    private final StatService service;
+    private final StatService statService;
 
     @GetMapping("/stats")
     @ResponseStatus(HttpStatus.OK)
-    public List<ViewStatsDto> get(@RequestParam(required = false) @DateTimeFormat(pattern = DATE_PATTERN) LocalDateTime start,
-                                  @RequestParam(required = false) @DateTimeFormat(pattern = DATE_PATTERN) LocalDateTime end,
+    public List<ViewStatsDto> get(@RequestParam(required = false) @DateTimeFormat(pattern = DATE_MASK) LocalDateTime start,
+                                  @RequestParam(required = false) @DateTimeFormat(pattern = DATE_MASK) LocalDateTime end,
                                   @RequestParam(required = false) List<String> uris,
                                   @RequestParam(defaultValue = "false") Boolean unique) {
-        if (start == null || end == null) {
-            throw new BadRequestException("Не задана дата начала или окончания периода поиска статистики!");
+        if (start == null) {
+            throw new BadRequestException("Не передан параметр start");
+        }
+
+        if (end == null) {
+            throw new BadRequestException("Не передан параметр end");
         }
 
         if (start.isAfter(end)) {
-            throw new BadRequestException("Дата начала позже даты окончания!");
+            throw new BadRequestException("start > end");
         }
-        log.info("Получен запрос GET /stats");
-        return service.get(start, end, uris, unique);
+        log.info("GET /stats");
+        return statService.get(start, end, uris, unique);
     }
 
     @PostMapping("/hit")
     @ResponseStatus(HttpStatus.CREATED)
     public EndpointHitDto save(@RequestBody EndpointHitDto dto) {
-        log.info("Получен запрос POST /hit");
-        return service.save(dto);
+        log.info("POST /hit");
+        return statService.save(dto);
     }
 }

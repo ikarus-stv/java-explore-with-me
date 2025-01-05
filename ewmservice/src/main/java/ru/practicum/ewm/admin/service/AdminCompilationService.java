@@ -1,13 +1,11 @@
 package ru.practicum.ewm.admin.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import ru.practicum.ewm.base.dto.CompilationDto;
 import ru.practicum.ewm.base.dto.NewCompilationDto;
 import ru.practicum.ewm.base.dto.UpdateCompilationRequest;
-import ru.practicum.ewm.base.exceptions.ConflictException;
 import ru.practicum.ewm.base.exceptions.NotFoundException;
 import ru.practicum.ewm.base.mapper.CompilationMapper;
 import ru.practicum.ewm.base.model.Compilation;
@@ -19,55 +17,42 @@ import java.util.Set;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class AdminCompilationService  {
 
     private final CompilationRepository compilationRepository;
     private final EventRepository eventRepository;
 
-    @Autowired
-    public AdminCompilationService(CompilationRepository compilationRepository, EventRepository eventRepository) {
-        this.compilationRepository = compilationRepository;
-        this.eventRepository = eventRepository;
-    }
-
     private Compilation findById(Long compId) {
         return compilationRepository.findById(compId)
-                .orElseThrow(() -> new NotFoundException(String.format("Подборка c ID %d не найдена", compId)));
+                .orElseThrow(() -> new NotFoundException("Compilation not found" +  compId));
     }
 
     private Set<Event> findEvents(Set<Long> events) {
-        return events == null ? Set.of() : eventRepository.findAllByIdIn(events);
+        if (events == null) {
+            return Set.of();
+        } else {
+            return eventRepository.findAllByIdIn(events);
+        }
     }
 
-    public CompilationDto save(NewCompilationDto request) {
-        Compilation compilation = CompilationMapper.mapToEntity(request, findEvents(request.getEvents()));
-
-        try {
-            compilation = compilationRepository.save(compilation);
-        } catch (DataIntegrityViolationException e) {
-            throw new ConflictException(String.format("Подборка с заголовком %s уже существует", compilation.getTitle()), e);
-        }
-
-        log.info("Сохраняем данные о подборке {}", compilation.getTitle());
+    public CompilationDto save(NewCompilationDto newCompilationDto) {
+        Compilation compilation = CompilationMapper.mapToEntity(newCompilationDto, findEvents(newCompilationDto.getEvents()));
+        compilation = compilationRepository.save(compilation);
+        log.info("Save compilation {}", compilation.getTitle());
         return CompilationMapper.mapToDto(compilation);
     }
 
     public CompilationDto update(UpdateCompilationRequest request, Long compId) {
         Compilation updatedCompilation = CompilationMapper.updateFields(findById(compId), request, findEvents(request.getEvents()));
-
-        try {
-            updatedCompilation = compilationRepository.save(updatedCompilation);
-        } catch (DataIntegrityViolationException e) {
-            throw new ConflictException(e.getMessage(), e);
-        }
-
-        log.info("Обновляем категорию \"{}\"", updatedCompilation.getTitle());
+        updatedCompilation = compilationRepository.save(updatedCompilation);
+        log.info("Update compilation {}", updatedCompilation.getTitle());
         return CompilationMapper.mapToDto(updatedCompilation);
     }
 
     public void delete(Long compId) {
         Compilation compilation = findById(compId);
         compilationRepository.deleteById(compId);
-        log.info("Пользователь {} удален", compilation.getTitle());
+        log.info("Delete compilation {}", compilation.getTitle());
     }
 }

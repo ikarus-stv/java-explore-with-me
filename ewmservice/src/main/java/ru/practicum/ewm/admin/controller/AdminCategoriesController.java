@@ -20,7 +20,7 @@ public class AdminCategoriesController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public CategoryDto save(@RequestBody @Valid NewCategoryDto newCategoryDto) {
-        log.info("POST /admin/categories : \"{}\"", newCategoryDto.getName());
+        log.info("POST /admin/categories : {}", newCategoryDto.getName());
         return adminCategoryService.save(newCategoryDto);
     }
 
@@ -29,12 +29,7 @@ public class AdminCategoriesController {
     public CategoryDto update(@PathVariable Long categoryId,
                               @RequestBody @Valid NewCategoryDto request) {
         log.info("PATCH /admin/categories/{}", categoryId);
-
-        CategoryDto result;
-
-        result = adminCategoryService.update(request, categoryId);
-
-        return result;
+        return adminCategoryService.update(request, categoryId);
     }
 
     @DeleteMapping("/{categoryId}")

@@ -1,7 +1,7 @@
 package ru.practicum.ewm.admin.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -25,59 +25,52 @@ import java.util.List;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class AdminEventService  {
-
     private final EventRepository eventRepository;
     private final CategoryRepository categoryRepository;
 
-    @Autowired
-    public AdminEventService(EventRepository eventRepository, CategoryRepository categoryRepository) {
-        this.eventRepository = eventRepository;
-        this.categoryRepository = categoryRepository;
-    }
-
     private Event findById(Long eventId) {
         return eventRepository.findById(eventId)
-                .orElseThrow(() -> new NotFoundException(String.format("Событие c ID %d не найдено", eventId)));
+                .orElseThrow(() -> new NotFoundException("Event not found: " + eventId));
     }
 
     private Category findCategoryById(Long catId) {
         return categoryRepository.findById(catId)
-                .orElseThrow(() -> new NotFoundException(String.format("Категория c ID %d не найдена", catId)));
+                .orElseThrow(() -> new NotFoundException("Category not found: " + catId));
     }
 
-    public Collection<EventFullDto> getEvents(NewParamEventDto params) {
-        PageRequest pageRequest = PageRequest.of(params.getFrom() / params.getSize(),
-                params.getSize(),
+    public Collection<EventFullDto> getEvents(NewParamEventDto newParamEventDto) {
+        PageRequest pageRequest = PageRequest.of(newParamEventDto.getFrom() / newParamEventDto.getSize(),
+                newParamEventDto.getSize(),
                 Sort.by(Sort.Direction.ASC, "id"));
 
-        List<Event> events = eventRepository.findAllWithCriteria(pageRequest, params).toList();
+        List<Event> events = eventRepository.findAllWithCriteria(pageRequest, newParamEventDto).toList();
 
-        log.info("Получаем данные о {} событиях", events.size());
+        log.info("Get events: {} ", events.size());
         return EventMapper.mapToListDto(events);
     }
 
-    public EventFullDto update(UpdateEventAdminRequest request, Long eventId) {
+    public EventFullDto update(UpdateEventAdminRequest updateEventAdminRequest, Long eventId) {
 
-        if (request.hasEventDate() && request.getEventDate().isBefore(LocalDateTime.now().plusHours(1))) {
-            throw new BadRequestException("Поле: eventDate. Ошибка: дата и время, на которые запланировано мероприятие, " +
-                    "не могут быть ранее, чем через час после текущего момента. Значение: " + request.getEventDate());
+        if (updateEventAdminRequest.hasEventDate() && updateEventAdminRequest.getEventDate().isBefore(LocalDateTime.now().plusHours(1))) {
+            throw new BadRequestException("Invalid eventDate: " + updateEventAdminRequest.getEventDate());
         }
 
         Event findEvent = findById(eventId);
 
         if (findEvent.getState().equals(States.PUBLISHED)) {
-            throw new ConflictException("Невозможно обновить т.к. событие уже опубликовано");
+            throw new ConflictException("Already PUBLISHED");
         } else if (findEvent.getState().equals(States.CANCELED)) {
-            throw new ConflictException("Невозможно обновить т.к. событие уже отменено");
+            throw new ConflictException("Already CANCELED");
         }
 
         Category category = null;
-        if (request.hasCategory() && !findEvent.getCategory().getId().equals(request.getCategory())) {
-            category = findCategoryById(request.getCategory());
+        if (updateEventAdminRequest.hasCategory() && !findEvent.getCategory().getId().equals(updateEventAdminRequest.getCategory())) {
+            category = findCategoryById(updateEventAdminRequest.getCategory());
         }
 
-        Event updatedEvent = EventMapper.updateAdminFields(findEvent, request, category);
+        Event updatedEvent = EventMapper.updateAdminFields(findEvent, updateEventAdminRequest, category);
 
         try {
             updatedEvent = eventRepository.save(updatedEvent);
@@ -85,7 +78,7 @@ public class AdminEventService  {
             throw new ConflictException(e.getMessage(), e);
         }
 
-        log.info("Администратор обновляет событие \"{}\"", updatedEvent.getTitle());
+        log.info("Event updated by admin : {}", updatedEvent.getTitle());
         return EventMapper.mapToDto(updatedEvent);
     }
 }
