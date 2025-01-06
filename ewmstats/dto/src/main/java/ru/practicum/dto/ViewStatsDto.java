@@ -5,9 +5,9 @@ import lombok.*;
 @Getter
 @Setter
 @ToString
+@EqualsAndHashCode(of = {"app", "uri", "hits"})
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode(of = {"app", "uri", "hits"})
 public class ViewStatsDto {
     private String app;
     private String uri;
