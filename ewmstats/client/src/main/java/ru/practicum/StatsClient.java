@@ -8,6 +8,6 @@ import java.util.List;
 
 public interface StatsClient {
     List<ViewStatsDto> get(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique);
-    public EndpointHitDto save(EndpointHitDto requestDto);
 
+    EndpointHitDto save(EndpointHitDto requestDto);
 }
