@@ -43,40 +43,43 @@ public class CommonEventsService {
     }
 
     private Event findById(Long id) {
-        Optional<Event> event = eventRepository.findById(id);
+        Optional<Event> optionalEvent = eventRepository.findById(id);
 
-        if (event.isEmpty() || !event.get().getState().equals(EventStates.PUBLISHED)) {
+        if (optionalEvent.isEmpty() || !optionalEvent.get().getState().equals(EventStates.PUBLISHED)) {
             throw new DataNotFoundException("Event not available, ID =" + id);
         }
 
-        return event.get();
+        return optionalEvent.get();
     }
 
-    public Collection<EventShortDto> getAll(EventRequestParam params) {
-        if (params.expectedBaseCriteria()) {
-            throw new BadRequestException(String.format("Не заданы базовые параметры поиска. text = %s " +
-                    "и единственное значение category = %s", params.getText(), params.getCategories().getFirst()));
+    public Collection<EventShortDto> getAll(EventRequestParam eventRequestParam) {
+        if (eventRequestParam.expectedBaseCriteria()) {
+            throw new BadRequestException(String.format("Invalid params text = %s, category = %s",
+                    eventRequestParam.getText(), eventRequestParam.getCategories().getFirst()));
         }
 
-        PageRequest pageRequest = getPageable(params.getSort(), params.getFrom(), params.getSize());
-        EventCriteria eventCriteria = new EventCriteria(params.getText(),
-                params.getCategories(),
-                params.getPaid(),
-                params.getRangeStart(),
-                params.getRangeEnd(),
-                params.getOnlyAvailable());
+        PageRequest pageRequest = getPageable(eventRequestParam.getSort(), eventRequestParam.getFrom(),
+                eventRequestParam.getSize());
+        EventCriteria eventCriteria = new EventCriteria(eventRequestParam.getText(),
+                eventRequestParam.getCategories(),
+                eventRequestParam.getPaid(),
+                eventRequestParam.getRangeStart(),
+                eventRequestParam.getRangeEnd(),
+                eventRequestParam.getOnlyAvailable());
 
         Set<Event> events = eventRepository.findAllWithCriteria(pageRequest, eventCriteria).toSet();
-
         Map<Long, Long> statsMap = statistic.getStatistic(events, Boolean.FALSE);
-
-        statistic.saveStatistic(params.getRequest());
-        log.info("Получаем публичный список из {} событий с добавлением в статистику", events.size());
+        statistic.saveStatistic(eventRequestParam.getRequest());
         return EventMapper.mapToListShortDto(events, statsMap);
     }
 
     public EventFullDto get(Long id, HttpServletRequest request) {
-        Event event = findById(id);
+        Optional<Event> optionalEvent = eventRepository.findById(id);
+
+        if (optionalEvent.isEmpty() || !optionalEvent.get().getState().equals(EventStates.PUBLISHED)) {
+            throw new DataNotFoundException("Event not available, ID =" + id);
+        }
+        Event event = optionalEvent.get();
 
         Map<Long, Long> statsMap = statistic.getStatistic(
                 event.getPublishedOn(),
@@ -86,7 +89,6 @@ public class CommonEventsService {
         );
 
         statistic.saveStatistic(request);
-        log.info("Получаем полную информацию о событии {} с добавлением в статистику", event.getTitle());
         return EventMapper.mapToDtoWithStat(event, statsMap.getOrDefault(id, 0L));
     }
 }

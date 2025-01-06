@@ -2,7 +2,6 @@ package ru.practicum.ewm.personal.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -27,7 +26,6 @@ import ru.practicum.ewm.base.repository.UserRepository;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -40,72 +38,47 @@ public class PersonalUserEventService {
     private final RequestRepository requestRepository;
 
 
-    private User findUserById(Long userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new DataNotFoundException(String.format("Пользователь c ID %d не найден", userId)));
-    }
-
     private Event findByIdAndInitiatorId(Long eventId, Long userId) {
         return eventRepository.findByIdAndInitiatorId(eventId, userId)
-                .orElseThrow(() -> new DataNotFoundException(String.format("Событие с ID %d, пользователя c ID %d не найдено", eventId, userId)));
+                .orElseThrow(() -> new DataNotFoundException(
+                        String.format("Event id = %d, userid = %d not found", eventId, userId)));
     }
 
-    private Category findCategoryById(Long catId) {
-        return categoryRepository.findById(catId)
-                .orElseThrow(() -> new DataNotFoundException(String.format("Категория c ID %d не найдена", catId)));
-    }
-
-    private void checkEventDate(LocalDateTime eventDate) {
-        if (eventDate != null && eventDate.isBefore(LocalDateTime.now().plusHours(2))) {
-            throw new BadRequestException("Поле: eventDate. Ошибка: дата и время, на которые запланировано мероприятие, " +
-                    "не могут быть ранее, чем через 2 часа после текущего момента. Значение: " + eventDate);
+    private void checkDate(LocalDateTime date) {
+        if (date != null && date.isBefore(LocalDateTime.now().plusHours(2))) {
+            throw new BadRequestException("Invalid eventDate " + date);
         }
     }
 
     public EventFullDto save(Long userId, NewEventDto request) {
-        checkEventDate(request.getEventDate());
-
-        Event event = EventMapper.mapToEntity(request, findCategoryById(request.getCategory()), findUserById(userId));
-        try {
-            event = eventRepository.save(event);
-        } catch (DataIntegrityViolationException e) {
-            throw new ConflictException(e.getMessage(), e);
-        }
-
-        log.info("Сохраняем данные о событии {} созданном пользователем c ID {}", request.getTitle(), userId);
-        return EventMapper.mapToDto(event);
+        checkDate(request.getEventDate());
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new DataNotFoundException("User not found id =" +  userId));
+        return EventMapper.mapToDto(eventRepository.save(
+                EventMapper.mapToEntity(request, findCategoryById(request.getCategory()), user)));
     }
 
     public Collection<EventShortDto> getAll(Long userId, Integer from, Integer size) {
-        PageRequest pageRequest = PageRequest.of(from / size, size, Sort.by(Sort.Direction.ASC, "id"));
-
-        Set<Event> events = eventRepository.findAllByInitiatorId(userId, pageRequest);
-
-        log.info("Получаем данные о всех {} событиях пользователях c ID {}", events.size(), userId);
-        return EventMapper.mapToListShortDto(events);
+        return EventMapper.mapToListShortDto(eventRepository.findAllByInitiatorId(userId,
+                PageRequest.of(from / size, size, Sort.by(Sort.Direction.ASC, "id"))));
     }
 
     public EventFullDto get(Long userId, Long eventId) {
-        Event events = findByIdAndInitiatorId(eventId, userId);
-
-        log.info("Событие {}, пользователя {} найдено", events.getTitle(), events.getInitiator().getName());
-        return EventMapper.mapToDto(events);
+        return EventMapper.mapToDto(findByIdAndInitiatorId(eventId, userId));
     }
 
     public Collection<ParticipationRequestDto> getRequests(Long userId, Long eventId) {
-        Event event = findByIdAndInitiatorId(eventId, userId);
-
-        log.info("Получаем данные о всех запросах на участие в событии {} пользователях c ID {}", event.getTitle(), userId);
+        findByIdAndInitiatorId(eventId, userId);
         return RequestMapper.mapToListDto(requestRepository.findAllByEventId(eventId));
     }
 
     public EventFullDto update(Long userId, Long eventId, UpdateEventUserRequest request) {
         Event findEvent = findByIdAndInitiatorId(eventId, userId);
 
-        checkEventDate(request.getEventDate());
+        checkDate(request.getEventDate());
 
         if (findEvent.getState().equals(EventStates.PUBLISHED)) {
-            throw new ConflictException("Невозможно обновить т.к. событие уже опубликовано");
+            throw new ConflictException("Can't update");
         }
 
         Category category = null;
@@ -114,18 +87,11 @@ public class PersonalUserEventService {
         }
 
         Event updatedEvent = EventMapper.updateUserFields(findEvent, request, category);
-
-        try {
-            updatedEvent = eventRepository.save(updatedEvent);
-        } catch (DataIntegrityViolationException e) {
-            throw new ConflictException(e.getMessage(), e);
-        }
-
-        log.info("Пользователь с ID {} обновляет событие \"{}\"", userId, updatedEvent.getTitle());
-        return EventMapper.mapToDto(updatedEvent);
+        return EventMapper.mapToDto(eventRepository.save(updatedEvent));
     }
 
-    public EventRequestStatusUpdateResult updateRequestsStatus(Long userId, Long eventId, EventRequestStatusUpdateRequest request) {
+    public EventRequestStatusUpdateResult updateRequestsStatus(Long userId, Long eventId,
+                                                               EventRequestStatusUpdateRequest request) {
         List<ParticipationRequestDto> confirmedRequests = List.of();
         List<ParticipationRequestDto> rejectedRequests = List.of();
 
@@ -138,10 +104,10 @@ public class PersonalUserEventService {
             boolean isConfirmedRequestExists = requests.stream()
                     .anyMatch(elem -> elem.getStatus().equals(EventStatuses.CONFIRMED));
             if (isConfirmedRequestExists) {
-                throw new ConflictException("При попытке отклонить все заявки, найдена подтвержденная.");
+                throw new ConflictException("Confirmed request exists");
             }
             rejectedRequests = requests.stream()
-                    .peek(elem -> elem.setStatus(EventStatuses.REJECTED))
+                    .peek(e -> e.setStatus(EventStatuses.REJECTED))
                     .map(RequestMapper::mapToDto)
                     .collect(Collectors.toList());
 
@@ -152,16 +118,14 @@ public class PersonalUserEventService {
             long waitingParticipants = requestIds.size();
 
             if (participantLimit > 0 && participantLimit.equals(approvedRequests)) {
-                throw new ConflictException(String.format("Событие %s достигло лимита по заявкам", findEvent.getTitle()));
-            }
-
-            if (participantLimit.equals(0L) || (waitingParticipants <= availableParticipants && !findEvent.getRequestModeration())) {
+                throw new ConflictException("Participant limit reached, event = " + findEvent.getTitle());
+            } else if (participantLimit.equals(0L) || (waitingParticipants <= availableParticipants && !findEvent.getRequestModeration())) {
                 confirmedRequests = requests.stream()
-                        .peek(elem -> {
-                            if (!elem.getStatus().equals(EventStatuses.CONFIRMED)) {
-                                elem.setStatus(EventStatuses.CONFIRMED);
+                        .peek(e -> {
+                            if (!e.getStatus().equals(EventStatuses.CONFIRMED)) {
+                                e.setStatus(EventStatuses.CONFIRMED);
                             } else {
-                                throw new ConflictException(String.format("Запрос с ID %d уже подтвержден", elem.getId()));
+                                throw new ConflictException("Request already confirmed id = " + e.getId());
                             }
                         })
                         .map(RequestMapper::mapToDto)
@@ -171,11 +135,11 @@ public class PersonalUserEventService {
             } else {
                 confirmedRequests = requests.stream()
                         .limit(availableParticipants)
-                        .peek(elem -> {
-                            if (!elem.getStatus().equals(EventStatuses.CONFIRMED)) {
-                                elem.setStatus(EventStatuses.CONFIRMED);
+                        .peek(e -> {
+                            if (!e.getStatus().equals(EventStatuses.CONFIRMED)) {
+                                e.setStatus(EventStatuses.CONFIRMED);
                             } else {
-                                throw new ConflictException(String.format("Запрос с ID %d уже подтвержден", elem.getId()));
+                                throw new ConflictException("Request already confirmed id = " + e.getId());
                             }
                         })
                         .map(RequestMapper::mapToDto)
@@ -183,11 +147,11 @@ public class PersonalUserEventService {
 
                 rejectedRequests = requests.stream()
                         .skip(availableParticipants)
-                        .peek(elem -> {
-                            if (!elem.getStatus().equals(EventStatuses.REJECTED)) {
-                                elem.setStatus(EventStatuses.REJECTED);
+                        .peek(e -> {
+                            if (!e.getStatus().equals(EventStatuses.REJECTED)) {
+                                e.setStatus(EventStatuses.REJECTED);
                             } else {
-                                throw new ConflictException(String.format("Запрос с ID %d уже отклонен", elem.getId()));
+                                throw new ConflictException("Request already rejected id = " + e.getId());
                             }
                         })
                         .map(RequestMapper::mapToDto)
@@ -196,17 +160,17 @@ public class PersonalUserEventService {
                 findEvent.setConfirmedRequests((long) confirmedRequests.size());
             }
         } else {
-            throw new ConflictException(String.format("При попытке редактирования заявок, указан неверный статус %s", status));
+            throw new ConflictException("Invalid status " + status);
         }
 
-        try {
-            eventRepository.flush();
-            requestRepository.flush();
-        } catch (DataIntegrityViolationException e) {
-            throw new ConflictException(e.getMessage(), e);
-        }
+        eventRepository.flush();
+        requestRepository.flush();
 
-        log.info("Пользователь с ID {} обновляет статус заявок события\"{}\"", userId, findEvent.getTitle());
         return new EventRequestStatusUpdateResult(confirmedRequests, rejectedRequests);
+    }
+
+    private Category findCategoryById(Long catId) {
+        return categoryRepository.findById(catId)
+                .orElseThrow(() -> new DataNotFoundException("Category not found id = " + catId));
     }
 }

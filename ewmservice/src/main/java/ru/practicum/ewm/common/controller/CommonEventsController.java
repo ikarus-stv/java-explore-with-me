@@ -35,7 +35,6 @@ public class CommonEventsController {
         log.info("GET /events c параметрами: text = {}, categories = {}, paid = {}, rangeStart = {}, " +
                  "rangeEnd = {}, onlyAvailable = {}, sort = {}, from = {}, size = {}", text, categories, paid,
                 rangeStart, rangeEnd, onlyAvailable, sort, from, size);
-        log.info("GET /events, REQUEST!!! = {}", request.getPathInfo());
         EventRequestParam params = new EventRequestParam(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size, request);
         return commonEventsService.getAll(params);
     }
