@@ -11,7 +11,7 @@ import ru.practicum.ewm.admin.dto.NewParamEventDto;
 import ru.practicum.ewm.admin.service.AdminEventService;
 import ru.practicum.ewm.base.dto.EventFullDto;
 import ru.practicum.ewm.base.dto.UpdateEventAdminRequest;
-import ru.practicum.ewm.base.enums.States;
+import ru.practicum.ewm.base.enums.EventStates;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -35,9 +35,9 @@ public class AdminEventsController {
                                               @RequestParam(required = false) LocalDateTime rangeEnd,
                                               @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
                                               @RequestParam(defaultValue = "10") @Positive Integer size) {
-        List<States> listStates;
+        List<EventStates> listStates;
         if (states != null) {
-            listStates = states.stream().map(States::from)
+            listStates = states.stream().map(EventStates::ofString)
                     .filter(Optional::isPresent)
                     .map(Optional::get)
                     .toList();

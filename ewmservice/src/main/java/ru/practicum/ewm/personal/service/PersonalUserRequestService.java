@@ -1,18 +1,15 @@
-package ru.practicum.ewm.personal.service.request;
+package ru.practicum.ewm.personal.service;
 
-import lombok.AccessLevel;
-import lombok.experimental.FieldDefaults;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.base.dto.ParticipationRequestDto;
-import ru.practicum.ewm.base.enums.States;
-import ru.practicum.ewm.base.enums.Statuses;
+import ru.practicum.ewm.base.enums.EventStates;
+import ru.practicum.ewm.base.enums.EventStatuses;
 import ru.practicum.ewm.base.exceptions.BadRequestException;
 import ru.practicum.ewm.base.exceptions.ConflictException;
-import ru.practicum.ewm.base.exceptions.NotFoundException;
+import ru.practicum.ewm.base.exceptions.DataNotFoundException;
 import ru.practicum.ewm.base.mapper.RequestMapper;
 import ru.practicum.ewm.base.model.Event;
 import ru.practicum.ewm.base.model.Request;
@@ -26,39 +23,28 @@ import java.util.List;
 
 @Slf4j
 @Service
-@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
-public class PersonalUserRequestServiceImpl implements PersonalUserRequestService {
-    UserRepository userRepository;
-    EventRepository eventRepository;
-    RequestRepository requestRepository;
-
-    @Autowired
-    public PersonalUserRequestServiceImpl(UserRepository userRepository,
-                                          EventRepository eventRepository,
-                                          RequestRepository requestRepository) {
-        this.userRepository = userRepository;
-        this.eventRepository = eventRepository;
-        this.requestRepository = requestRepository;
-    }
+@RequiredArgsConstructor
+public class PersonalUserRequestService {
+    private final UserRepository userRepository;
+    private final EventRepository eventRepository;
+    private final RequestRepository requestRepository;
 
     private Request findByIdAndRequesterId(Long requestId, Long userId) {
         return requestRepository.findByIdAndRequesterId(requestId, userId)
-                .orElseThrow(() -> new NotFoundException(String.format("Запрос c ID %d пользователя с ID %d не найден",
+                .orElseThrow(() -> new DataNotFoundException(String.format("Запрос c ID %d пользователя с ID %d не найден",
                         requestId, userId)));
     }
 
     private User findUserById(Long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException(String.format("Пользователь c ID %d не найден", userId)));
+                .orElseThrow(() -> new DataNotFoundException(String.format("Пользователь c ID %d не найден", userId)));
     }
 
     private Event findEventById(Long eventId) {
         return eventRepository.findById(eventId)
-                .orElseThrow(() -> new NotFoundException(String.format("Событие с ID %dне найдено", eventId)));
+                .orElseThrow(() -> new DataNotFoundException(String.format("Событие с ID %dне найдено", eventId)));
     }
 
-    @Override
-    @Transactional
     public ParticipationRequestDto save(Long userId, Long eventId) {
         if (userId == null || eventId == null) {
             throw new BadRequestException("Не задан параметр ID пользователя или события");
@@ -76,7 +62,7 @@ public class PersonalUserRequestServiceImpl implements PersonalUserRequestServic
             throw new ConflictException("Нельзя создать запрос на участие в своем событии");
         }
 
-        if (!event.getState().equals(States.PUBLISHED)) {
+        if (!event.getState().equals(EventStates.PUBLISHED)) {
             throw new ConflictException("Нельзя участвовать в неопубликованном событии");
         }
 
@@ -101,8 +87,6 @@ public class PersonalUserRequestServiceImpl implements PersonalUserRequestServic
         return RequestMapper.mapToDto(request);
     }
 
-    @Override
-    @Transactional(readOnly = true)
     public Collection<ParticipationRequestDto> get(Long userId) {
         User user = findUserById(userId);
 
@@ -112,12 +96,10 @@ public class PersonalUserRequestServiceImpl implements PersonalUserRequestServic
         return RequestMapper.mapToListDto(requests);
     }
 
-    @Override
-    @Transactional
     public ParticipationRequestDto update(Long userId, Long requestId) {
         Request request = findByIdAndRequesterId(requestId, userId);
 
-        request.setStatus(Statuses.CANCELED);
+        request.setStatus(EventStatuses.CANCELED);
 
         try {
             request = requestRepository.save(request);

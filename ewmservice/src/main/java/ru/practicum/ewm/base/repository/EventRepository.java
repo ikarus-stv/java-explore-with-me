@@ -8,7 +8,7 @@ import ru.practicum.ewm.base.model.Event;
 import java.util.Optional;
 import java.util.Set;
 
-public interface EventRepository extends JpaRepository<Event, Long>, EventCriteriaRepository {
+public interface EventRepository extends JpaRepository<Event, Long>,    EventCriteriaRepository {
     Boolean existsByCategory(Category category);
 
     Set<Event> findAllByInitiatorId(Long id, PageRequest pageRequest);

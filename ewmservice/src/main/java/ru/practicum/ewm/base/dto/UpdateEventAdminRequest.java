@@ -1,19 +1,17 @@
 package ru.practicum.ewm.base.dto;
 
 import lombok.*;
-import lombok.experimental.FieldDefaults;
-import ru.practicum.ewm.base.enums.AdminStateAction;
+import ru.practicum.ewm.base.enums.AdminEventAction;
 
 @Getter
 @Setter
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE)
 public class UpdateEventAdminRequest extends UpdateEventRequest {
-    AdminStateAction stateAction;
+    private AdminEventAction stateAction;
 
     public boolean hasStateAction() {
-        return this.stateAction != null;
+        return stateAction != null;
     }
 }

@@ -15,7 +15,6 @@ import java.util.Set;
 @Table(name = "compilations")
 public class Compilation {
     @Id
-    @Column(name = "id", nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -25,9 +24,9 @@ public class Compilation {
             inverseJoinColumns = @JoinColumn(name = "event_id"))
     private Set<Event> events;
 
-    @Column(name = "pinned", nullable = false)
+    @Column
     private Boolean pinned;
 
-    @Column(name = "title", nullable = false)
+    @Column
     private String title;
 }

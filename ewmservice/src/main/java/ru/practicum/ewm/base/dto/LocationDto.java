@@ -10,9 +10,8 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class LocationDto {
-    @NotNull(message = "Широта должна быть указана")
+    @NotNull(message = "latitude expected")
     private Float lat;
-
-    @NotNull(message = "Долгота должна быть указана")
+    @NotNull(message = "longitude expected")
     private Float lon;
 }

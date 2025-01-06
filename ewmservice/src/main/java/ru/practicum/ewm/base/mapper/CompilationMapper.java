@@ -1,6 +1,5 @@
 package ru.practicum.ewm.base.mapper;
 
-import lombok.experimental.UtilityClass;
 import ru.practicum.ewm.base.dto.CompilationDto;
 import ru.practicum.ewm.base.dto.NewCompilationDto;
 import ru.practicum.ewm.base.dto.UpdateCompilationRequest;
@@ -10,43 +9,35 @@ import ru.practicum.ewm.base.model.Event;
 import java.util.List;
 import java.util.Set;
 
-@UtilityClass
 public class CompilationMapper {
 
     public static Compilation mapToEntity(NewCompilationDto request, Set<Event> events) {
         Compilation compilation = new Compilation();
         compilation.setEvents(events);
-        if (request.getPinned() == null) {
-            compilation.setPinned(Boolean.FALSE);
-        } else {
-            compilation.setPinned(request.getPinned());
-        }
-
+        compilation.setPinned((request.getPinned() == null) ? Boolean.FALSE : request.getPinned());
         compilation.setTitle(request.getTitle());
-
         return compilation;
     }
 
-    public static CompilationDto mapToDto(Compilation entity) {
+    public static CompilationDto mapToDto(Compilation compilation) {
         CompilationDto dto = new CompilationDto();
-        dto.setId(entity.getId());
-        dto.setEvents(EventMapper.mapToListShortDto(entity.getEvents()));
-        dto.setPinned(entity.getPinned());
-        dto.setTitle(entity.getTitle());
+        dto.setId(compilation.getId());
+        dto.setEvents(EventMapper.mapToListShortDto(compilation.getEvents()));
+        dto.setPinned(compilation.getPinned());
+        dto.setTitle(compilation.getTitle());
         return dto;
     }
 
-    public static Compilation updateFields(Compilation compilation, UpdateCompilationRequest request, Set<Event> events) {
-        if (request.hasEvents()) {
+    public static Compilation updateFields(Compilation compilation, UpdateCompilationRequest updateCompilationRequest,
+                                           Set<Event> events) {
+        if (updateCompilationRequest.hasEvents()) {
             compilation.setEvents(events);
         }
-
-        if (request.hasPinned()) {
-            compilation.setPinned(request.getPinned());
+        if (updateCompilationRequest.hasPinned()) {
+            compilation.setPinned(updateCompilationRequest.getPinned());
         }
-
-        if (request.hasTitle()) {
-            compilation.setTitle(request.getTitle());
+        if (updateCompilationRequest.hasTitle()) {
+            compilation.setTitle(updateCompilationRequest.getTitle());
         }
         return compilation;
     }

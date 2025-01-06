@@ -9,10 +9,10 @@ import org.springframework.stereotype.Service;
 import ru.practicum.ewm.admin.dto.NewParamEventDto;
 import ru.practicum.ewm.base.dto.EventFullDto;
 import ru.practicum.ewm.base.dto.UpdateEventAdminRequest;
-import ru.practicum.ewm.base.enums.States;
+import ru.practicum.ewm.base.enums.EventStates;
 import ru.practicum.ewm.base.exceptions.BadRequestException;
 import ru.practicum.ewm.base.exceptions.ConflictException;
-import ru.practicum.ewm.base.exceptions.NotFoundException;
+import ru.practicum.ewm.base.exceptions.DataNotFoundException;
 import ru.practicum.ewm.base.mapper.EventMapper;
 import ru.practicum.ewm.base.model.Category;
 import ru.practicum.ewm.base.model.Event;
@@ -32,12 +32,12 @@ public class AdminEventService  {
 
     private Event findById(Long eventId) {
         return eventRepository.findById(eventId)
-                .orElseThrow(() -> new NotFoundException("Event not found: " + eventId));
+                .orElseThrow(() -> new DataNotFoundException("Event not found: " + eventId));
     }
 
     private Category findCategoryById(Long catId) {
         return categoryRepository.findById(catId)
-                .orElseThrow(() -> new NotFoundException("Category not found: " + catId));
+                .orElseThrow(() -> new DataNotFoundException("Category not found: " + catId));
     }
 
     public Collection<EventFullDto> getEvents(NewParamEventDto newParamEventDto) {
@@ -59,9 +59,9 @@ public class AdminEventService  {
 
         Event findEvent = findById(eventId);
 
-        if (findEvent.getState().equals(States.PUBLISHED)) {
+        if (findEvent.getState().equals(EventStates.PUBLISHED)) {
             throw new ConflictException("Already PUBLISHED");
-        } else if (findEvent.getState().equals(States.CANCELED)) {
+        } else if (findEvent.getState().equals(EventStates.CANCELED)) {
             throw new ConflictException("Already CANCELED");
         }
 

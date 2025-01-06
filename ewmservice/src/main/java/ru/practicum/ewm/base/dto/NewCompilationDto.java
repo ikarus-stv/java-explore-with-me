@@ -2,7 +2,6 @@ package ru.practicum.ewm.base.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
-import lombok.experimental.FieldDefaults;
 import org.hibernate.validator.constraints.Length;
 
 import java.util.Set;
@@ -12,13 +11,11 @@ import java.util.Set;
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE)
 public class NewCompilationDto {
-    Set<Long> events;
+    private Set<Long> events;
+    private Boolean pinned;
 
-    Boolean pinned;
-
-    @NotBlank(message = "Заголовок подборки событий не может отсутствовать или быть пустым")
+    @NotBlank(message = "title required")
     @Length(min = 1, max = 50)
-    String title;
+    private String title;
 }

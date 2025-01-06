@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.base.dto.CompilationDto;
-import ru.practicum.ewm.common.service.compilation.CommonCompilationsService;
+import ru.practicum.ewm.common.service.CommonCompilationsService;
 
 import java.util.Collection;
 
@@ -15,21 +15,21 @@ import java.util.Collection;
 @RequestMapping("/compilations")
 public class CommonCompilationsController {
 
-    private final CommonCompilationsService service;
+    private final CommonCompilationsService commonCompilationsService;
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public Collection<CompilationDto> getAll(@RequestParam(defaultValue = "false") Boolean pinned,
-                                             @RequestParam(defaultValue = "0") Integer from,
-                                             @RequestParam(defaultValue = "10") Integer size) {
-        log.info("Получен запрос GET /compilations с параметрами from = {} size = {}", from, size);
-        return service.getAll(pinned, from, size);
+    public Collection<CompilationDto> get(@RequestParam(defaultValue = "false") Boolean pinned,
+                                          @RequestParam(defaultValue = "0") Integer from,
+                                          @RequestParam(defaultValue = "10") Integer size) {
+        log.info("GET /compilations from = {} size = {}", from, size);
+        return commonCompilationsService.getAll(pinned, from, size);
     }
 
-    @GetMapping("/{comp-id}")
+    @GetMapping("/{compId}")
     @ResponseStatus(HttpStatus.OK)
-    public CompilationDto getCompilation(@PathVariable("comp-id") Long compId) {
+    public CompilationDto get(@PathVariable Long compId) {
         log.info("Получен запрос GET /compilations/{}", compId);
-        return service.get(compId);
+        return commonCompilationsService.get(compId);
     }
 }

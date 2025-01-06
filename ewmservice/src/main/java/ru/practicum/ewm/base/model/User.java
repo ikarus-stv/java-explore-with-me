@@ -13,13 +13,12 @@ import lombok.*;
 @Table(name = "users")
 public class User {
     @Id
-    @Column(name = "id", nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "email", nullable = false, unique = true)
+    @Column
     private String email;
 
-    @Column(name = "name", nullable = false)
+    @Column
     private String name;
 }

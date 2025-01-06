@@ -7,5 +7,5 @@ import ru.practicum.ewm.base.model.User;
 import java.util.List;
 
 public interface UserRepository extends JpaRepository<User, Long> {
-    List<User> findAllByIdIn(List<Long> ids, PageRequest pageRequest);
+    List<User> findAllByIdIn(List<Long> ids, PageRequest request);
 }

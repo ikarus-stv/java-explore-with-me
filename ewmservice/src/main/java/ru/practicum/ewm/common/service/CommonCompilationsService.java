@@ -1,14 +1,12 @@
-package ru.practicum.ewm.common.service.compilation;
+package ru.practicum.ewm.common.service;
 
-import lombok.AccessLevel;
-import lombok.experimental.FieldDefaults;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.base.dto.CompilationDto;
-import ru.practicum.ewm.base.exceptions.NotFoundException;
+import ru.practicum.ewm.base.exceptions.DataNotFoundException;
 import ru.practicum.ewm.base.mapper.CompilationMapper;
 import ru.practicum.ewm.base.model.Compilation;
 import ru.practicum.ewm.base.repository.CompilationRepository;
@@ -18,22 +16,16 @@ import java.util.List;
 
 @Slf4j
 @Service
-@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
-public class CommonCompilationsServiceImpl implements CommonCompilationsService {
+@RequiredArgsConstructor
+public class CommonCompilationsService {
 
-    CompilationRepository compilationRepository;
-
-    public CommonCompilationsServiceImpl(CompilationRepository compilationRepository) {
-        this.compilationRepository = compilationRepository;
-    }
+    private final CompilationRepository compilationRepository;
 
     public Compilation findById(Long compId) {
         return compilationRepository.findById(compId)
-                .orElseThrow(() -> new NotFoundException(String.format("Подборка c ID %d не найдена", compId)));
+                .orElseThrow(() -> new DataNotFoundException("Compilation not found, id = " + compId));
     }
 
-    @Override
-    @Transactional(readOnly = true)
     public Collection<CompilationDto> getAll(Boolean pinned, Integer from, Integer size) {
         PageRequest pageRequest = PageRequest.of(from / size, size, Sort.by(Sort.Direction.ASC, "id"));
 
@@ -47,10 +39,7 @@ public class CommonCompilationsServiceImpl implements CommonCompilationsService 
         return CompilationMapper.mapToListDto(compilations);
     }
 
-    @Override
-    @Transactional(readOnly = true)
     public CompilationDto get(Long compId) {
         return CompilationMapper.mapToDto(findById(compId));
     }
-
 }

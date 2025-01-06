@@ -1,21 +1,18 @@
-package ru.practicum.ewm.personal.service.event;
+package ru.practicum.ewm.personal.service;
 
-import lombok.AccessLevel;
-import lombok.experimental.FieldDefaults;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.base.dto.ParticipationRequestDto;
 import ru.practicum.ewm.base.dto.*;
-import ru.practicum.ewm.base.enums.States;
-import ru.practicum.ewm.base.enums.Statuses;
+import ru.practicum.ewm.base.enums.EventStates;
+import ru.practicum.ewm.base.enums.EventStatuses;
 import ru.practicum.ewm.base.exceptions.BadRequestException;
 import ru.practicum.ewm.base.exceptions.ConflictException;
-import ru.practicum.ewm.base.exceptions.NotFoundException;
+import ru.practicum.ewm.base.exceptions.DataNotFoundException;
 import ru.practicum.ewm.base.mapper.EventMapper;
 import ru.practicum.ewm.base.mapper.RequestMapper;
 import ru.practicum.ewm.base.model.Category;
@@ -35,37 +32,27 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
-public class PersonalUserEventServiceImpl implements PersonalUserEventService {
-    UserRepository userRepository;
-    EventRepository eventRepository;
-    CategoryRepository categoryRepository;
-    RequestRepository requestRepository;
+@RequiredArgsConstructor
+public class PersonalUserEventService {
+    private final UserRepository userRepository;
+    private final EventRepository eventRepository;
+    private final CategoryRepository categoryRepository;
+    private final RequestRepository requestRepository;
 
-    @Autowired
-    public PersonalUserEventServiceImpl(UserRepository userRepository,
-                                        EventRepository eventRepository,
-                                        CategoryRepository categoryRepository,
-                                        RequestRepository requestRepository) {
-        this.userRepository = userRepository;
-        this.eventRepository = eventRepository;
-        this.categoryRepository = categoryRepository;
-        this.requestRepository = requestRepository;
-    }
 
     private User findUserById(Long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException(String.format("Пользователь c ID %d не найден", userId)));
+                .orElseThrow(() -> new DataNotFoundException(String.format("Пользователь c ID %d не найден", userId)));
     }
 
     private Event findByIdAndInitiatorId(Long eventId, Long userId) {
         return eventRepository.findByIdAndInitiatorId(eventId, userId)
-                .orElseThrow(() -> new NotFoundException(String.format("Событие с ID %d, пользователя c ID %d не найдено", eventId, userId)));
+                .orElseThrow(() -> new DataNotFoundException(String.format("Событие с ID %d, пользователя c ID %d не найдено", eventId, userId)));
     }
 
     private Category findCategoryById(Long catId) {
         return categoryRepository.findById(catId)
-                .orElseThrow(() -> new NotFoundException(String.format("Категория c ID %d не найдена", catId)));
+                .orElseThrow(() -> new DataNotFoundException(String.format("Категория c ID %d не найдена", catId)));
     }
 
     private void checkEventDate(LocalDateTime eventDate) {
@@ -75,8 +62,6 @@ public class PersonalUserEventServiceImpl implements PersonalUserEventService {
         }
     }
 
-    @Override
-    @Transactional
     public EventFullDto save(Long userId, NewEventDto request) {
         checkEventDate(request.getEventDate());
 
@@ -91,8 +76,6 @@ public class PersonalUserEventServiceImpl implements PersonalUserEventService {
         return EventMapper.mapToDto(event);
     }
 
-    @Override
-    @Transactional(readOnly = true)
     public Collection<EventShortDto> getAll(Long userId, Integer from, Integer size) {
         PageRequest pageRequest = PageRequest.of(from / size, size, Sort.by(Sort.Direction.ASC, "id"));
 
@@ -102,8 +85,6 @@ public class PersonalUserEventServiceImpl implements PersonalUserEventService {
         return EventMapper.mapToListShortDto(events);
     }
 
-    @Override
-    @Transactional(readOnly = true)
     public EventFullDto get(Long userId, Long eventId) {
         Event events = findByIdAndInitiatorId(eventId, userId);
 
@@ -111,8 +92,6 @@ public class PersonalUserEventServiceImpl implements PersonalUserEventService {
         return EventMapper.mapToDto(events);
     }
 
-    @Override
-    @Transactional(readOnly = true)
     public Collection<ParticipationRequestDto> getRequests(Long userId, Long eventId) {
         Event event = findByIdAndInitiatorId(eventId, userId);
 
@@ -120,14 +99,12 @@ public class PersonalUserEventServiceImpl implements PersonalUserEventService {
         return RequestMapper.mapToListDto(requestRepository.findAllByEventId(eventId));
     }
 
-    @Override
-    @Transactional
     public EventFullDto update(Long userId, Long eventId, UpdateEventUserRequest request) {
         Event findEvent = findByIdAndInitiatorId(eventId, userId);
 
         checkEventDate(request.getEventDate());
 
-        if (findEvent.getState().equals(States.PUBLISHED)) {
+        if (findEvent.getState().equals(EventStates.PUBLISHED)) {
             throw new ConflictException("Невозможно обновить т.к. событие уже опубликовано");
         }
 
@@ -148,8 +125,6 @@ public class PersonalUserEventServiceImpl implements PersonalUserEventService {
         return EventMapper.mapToDto(updatedEvent);
     }
 
-    @Override
-    @Transactional
     public EventRequestStatusUpdateResult updateRequestsStatus(Long userId, Long eventId, EventRequestStatusUpdateRequest request) {
         List<ParticipationRequestDto> confirmedRequests = List.of();
         List<ParticipationRequestDto> rejectedRequests = List.of();
@@ -159,19 +134,18 @@ public class PersonalUserEventServiceImpl implements PersonalUserEventService {
         Event findEvent = findByIdAndInitiatorId(eventId, userId);
         String status = request.getStatus();
 
-        // Отклонение всех заявок
-        if (status.equals(Statuses.REJECTED.toString())) {
+        if (status.equals(EventStatuses.REJECTED.toString())) {
             boolean isConfirmedRequestExists = requests.stream()
-                    .anyMatch(elem -> elem.getStatus().equals(Statuses.CONFIRMED));
+                    .anyMatch(elem -> elem.getStatus().equals(EventStatuses.CONFIRMED));
             if (isConfirmedRequestExists) {
                 throw new ConflictException("При попытке отклонить все заявки, найдена подтвержденная.");
             }
             rejectedRequests = requests.stream()
-                    .peek(elem -> elem.setStatus(Statuses.REJECTED))
+                    .peek(elem -> elem.setStatus(EventStatuses.REJECTED))
                     .map(RequestMapper::mapToDto)
                     .collect(Collectors.toList());
 
-        } else if (status.equals(Statuses.CONFIRMED.toString())) {
+        } else if (status.equals(EventStatuses.CONFIRMED.toString())) {
             Long participantLimit = findEvent.getParticipantLimit();
             Long approvedRequests = findEvent.getConfirmedRequests();
             long availableParticipants = participantLimit - approvedRequests;
@@ -184,8 +158,8 @@ public class PersonalUserEventServiceImpl implements PersonalUserEventService {
             if (participantLimit.equals(0L) || (waitingParticipants <= availableParticipants && !findEvent.getRequestModeration())) {
                 confirmedRequests = requests.stream()
                         .peek(elem -> {
-                            if (!elem.getStatus().equals(Statuses.CONFIRMED)) {
-                                elem.setStatus(Statuses.CONFIRMED);
+                            if (!elem.getStatus().equals(EventStatuses.CONFIRMED)) {
+                                elem.setStatus(EventStatuses.CONFIRMED);
                             } else {
                                 throw new ConflictException(String.format("Запрос с ID %d уже подтвержден", elem.getId()));
                             }
@@ -198,8 +172,8 @@ public class PersonalUserEventServiceImpl implements PersonalUserEventService {
                 confirmedRequests = requests.stream()
                         .limit(availableParticipants)
                         .peek(elem -> {
-                            if (!elem.getStatus().equals(Statuses.CONFIRMED)) {
-                                elem.setStatus(Statuses.CONFIRMED);
+                            if (!elem.getStatus().equals(EventStatuses.CONFIRMED)) {
+                                elem.setStatus(EventStatuses.CONFIRMED);
                             } else {
                                 throw new ConflictException(String.format("Запрос с ID %d уже подтвержден", elem.getId()));
                             }
@@ -210,8 +184,8 @@ public class PersonalUserEventServiceImpl implements PersonalUserEventService {
                 rejectedRequests = requests.stream()
                         .skip(availableParticipants)
                         .peek(elem -> {
-                            if (!elem.getStatus().equals(Statuses.REJECTED)) {
-                                elem.setStatus(Statuses.REJECTED);
+                            if (!elem.getStatus().equals(EventStatuses.REJECTED)) {
+                                elem.setStatus(EventStatuses.REJECTED);
                             } else {
                                 throw new ConflictException(String.format("Запрос с ID %d уже отклонен", elem.getId()));
                             }

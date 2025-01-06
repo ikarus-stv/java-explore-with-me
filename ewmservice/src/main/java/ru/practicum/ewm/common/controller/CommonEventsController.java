@@ -7,8 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.base.dto.EventFullDto;
 import ru.practicum.ewm.base.dto.EventShortDto;
-import ru.practicum.ewm.common.dto.EventRequestParam;
-import ru.practicum.ewm.common.service.event.CommonEventsService;
+import ru.practicum.ewm.common.service.CommonEventsService;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -19,7 +18,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/events")
 public class CommonEventsController {
-    private final CommonEventsService service;
+    private final CommonEventsService commonEventsService;
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
@@ -33,17 +32,18 @@ public class CommonEventsController {
                                             @RequestParam(name = "from", defaultValue = "0") Integer from,
                                             @RequestParam(name = "size", defaultValue = "10") Integer size,
                                             HttpServletRequest request) {
-        log.info("Получен запрос GET /events c параметрами: text = {}, categories = {}, paid = {}, rangeStart = {}, " +
-                        "rangeEnd = {}, onlyAvailable = {}, sort = {}, from = {}, size = {}", text, categories, paid,
+        log.info("GET /events c параметрами: text = {}, categories = {}, paid = {}, rangeStart = {}, " +
+                 "rangeEnd = {}, onlyAvailable = {}, sort = {}, from = {}, size = {}", text, categories, paid,
                 rangeStart, rangeEnd, onlyAvailable, sort, from, size);
+        log.info("GET /events, REQUEST!!! = {}", request.getPathInfo());
         EventRequestParam params = new EventRequestParam(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size, request);
-        return service.getAll(params);
+        return commonEventsService.getAll(params);
     }
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public EventFullDto get(@PathVariable("id") Long id, HttpServletRequest request) {
-        log.info("Получен запрос GET /events/{}", id);
-        return service.get(id, request);
+    public EventFullDto get(@PathVariable Long id, HttpServletRequest request) {
+        log.info("GET /events/{}", id);
+        return commonEventsService.get(id, request);
     }
 }

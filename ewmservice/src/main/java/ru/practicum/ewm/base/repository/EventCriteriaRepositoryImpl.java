@@ -30,6 +30,8 @@ public class EventCriteriaRepositoryImpl implements EventCriteriaRepository {
         List<Predicate> predicates = new ArrayList<>();
         Predicate annotationPredicate = null;
 
+        // predicates.add(criteriaBuilder.equal(eventRoot.get("state"), States.PUBLISHED.toString()));
+
         if (criteria.getText() != null) {
             annotationPredicate = criteriaBuilder.like(criteriaBuilder.lower(eventRoot.get("annotation")),
                     "%" + criteria.getText().toLowerCase() + "%");

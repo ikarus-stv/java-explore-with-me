@@ -2,7 +2,7 @@ package ru.practicum.ewm.base.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-import ru.practicum.ewm.base.enums.States;
+import ru.practicum.ewm.base.enums.EventStates;
 
 import java.time.LocalDateTime;
 
@@ -16,11 +16,10 @@ import java.time.LocalDateTime;
 @Table(name = "events")
 public class Event {
     @Id
-    @Column(name = "id", nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "annotation", nullable = false)
+    @Column
     private String annotation;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -34,7 +33,7 @@ public class Event {
     @Column(name = "created_on")
     private LocalDateTime createdOn;
 
-    @Column(name = "description", nullable = false)
+    @Column
     private String description;
 
     @Column(name = "event_date")
@@ -51,7 +50,7 @@ public class Event {
     })
     private Location location;
 
-    @Column(name = "paid", nullable = false)
+    @Column
     private Boolean paid;
 
     @Column(name = "participant_limit")
@@ -64,12 +63,12 @@ public class Event {
     private Boolean requestModeration;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "state")
-    private States state;
+    @Column
+    private EventStates state;
 
-    @Column(name = "title", nullable = false)
+    @Column
     private String title;
 
-    @Column(name = "views")
+    @Column
     private Long views;
 }

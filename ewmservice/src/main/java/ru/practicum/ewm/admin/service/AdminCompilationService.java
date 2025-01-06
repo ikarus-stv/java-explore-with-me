@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import ru.practicum.ewm.base.dto.CompilationDto;
 import ru.practicum.ewm.base.dto.NewCompilationDto;
 import ru.practicum.ewm.base.dto.UpdateCompilationRequest;
-import ru.practicum.ewm.base.exceptions.NotFoundException;
+import ru.practicum.ewm.base.exceptions.DataNotFoundException;
 import ru.practicum.ewm.base.mapper.CompilationMapper;
 import ru.practicum.ewm.base.model.Compilation;
 import ru.practicum.ewm.base.model.Event;
@@ -25,7 +25,7 @@ public class AdminCompilationService  {
 
     private Compilation findById(Long compId) {
         return compilationRepository.findById(compId)
-                .orElseThrow(() -> new NotFoundException("Compilation not found" +  compId));
+                .orElseThrow(() -> new DataNotFoundException("Compilation not found" +  compId));
     }
 
     private Set<Event> findEvents(Set<Long> events) {

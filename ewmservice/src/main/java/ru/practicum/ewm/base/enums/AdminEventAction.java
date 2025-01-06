@@ -1,6 +1,6 @@
 package ru.practicum.ewm.base.enums;
 
-public enum AdminStateAction {
+public enum AdminEventAction {
     PUBLISH_EVENT,
     REJECT_EVENT
 }

@@ -8,70 +8,66 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.base.dto.*;
-import ru.practicum.ewm.personal.service.event.PersonalUserEventService;
+import ru.practicum.ewm.personal.service.PersonalUserEventService;
 
 import java.util.Collection;
 
 @Slf4j
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/users/{user-id}/events")
+@RequestMapping("/users/{userId}/events")
 public class PersonalUsersEventController {
-    private static final String PV_USER_ID = "user-id";
-    private static final String M_EVENT_ID = "/{event-id}";
-    private static final String PV_EVENT_ID = "event-id";
-    private static final String M_REQUESTS_ID = "/requests";
 
-    private final PersonalUserEventService service;
+    private final PersonalUserEventService personalUserEventService;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public EventFullDto save(@PathVariable(PV_USER_ID) Long userId,
+    public EventFullDto save(@PathVariable Long userId,
                              @RequestBody @Valid NewEventDto request) {
-        log.info("Получен запрос POST /users/{}/events c событием {}", userId, request);
-        return service.save(userId, request);
+        log.info("POST /users/{}/events - {}", userId, request);
+        return personalUserEventService.save(userId, request);
     }
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public Collection<EventShortDto> getUserEvents(@PathVariable(PV_USER_ID) Long userId,
+    public Collection<EventShortDto> getUserEvents(@PathVariable Long userId,
                                                    @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
                                                    @RequestParam(defaultValue = "10") @Positive Integer size) {
-        log.info("Получен запрос GET /users/{}/events с параметрами from = {}, size = {}", userId, from, size);
-        return service.getAll(userId, from, size);
+        log.info("GET /users/{}/events from = {}, size = {}", userId, from, size);
+        return personalUserEventService.getAll(userId, from, size);
     }
 
-    @GetMapping(M_EVENT_ID)
+    @GetMapping("/{eventId}")
     @ResponseStatus(HttpStatus.OK)
-    public EventFullDto getUserEvent(@PathVariable(PV_USER_ID) Long userId,
-                                     @PathVariable(PV_EVENT_ID) Long eventId) {
-        log.info("Получен запрос GET /users/{}/events/{}", userId, eventId);
-        return service.get(userId, eventId);
+    public EventFullDto getUserEvent(@PathVariable Long userId,
+                                     @PathVariable Long eventId) {
+        log.info("GET /users/{}/events/{}", userId, eventId);
+        return personalUserEventService.get(userId, eventId);
     }
 
-    @GetMapping(M_EVENT_ID + M_REQUESTS_ID)
+    @GetMapping("/{eventId}/requests")
     @ResponseStatus(HttpStatus.OK)
-    public Collection<ParticipationRequestDto> getUserEventRequests(@PathVariable(PV_USER_ID) Long userId,
-                                                                    @PathVariable(PV_EVENT_ID) Long eventId) {
-        log.info("Получен запрос GET /users/{}/events/{}/requests", userId, eventId);
-        return service.getRequests(userId, eventId);
+    public Collection<ParticipationRequestDto> getUserEventRequests(@PathVariable Long userId,
+                                                                    @PathVariable Long eventId) {
+        log.info("GET /users/{}/events/{}/requests", userId, eventId);
+        return personalUserEventService.getRequests(userId, eventId);
     }
 
-    @PatchMapping(M_EVENT_ID)
+    @PatchMapping("/{eventId}")
     @ResponseStatus(HttpStatus.OK)
-    public EventFullDto update(@PathVariable(PV_USER_ID) Long userId,
-                               @PathVariable(PV_EVENT_ID) Long eventId,
+    public EventFullDto update(@PathVariable Long userId,
+                               @PathVariable Long eventId,
                                @RequestBody @Valid UpdateEventUserRequest request) {
-        log.info("Получен запрос PATCH /users/{}/events/{} на обновление события", userId, eventId);
-        return service.update(userId, eventId, request);
+        log.info("PATCH /users/{}/events/{}", userId, eventId);
+        return personalUserEventService.update(userId, eventId, request);
     }
 
-    @PatchMapping(M_EVENT_ID + M_REQUESTS_ID)
+    @PatchMapping("/{eventId}/requests")
     @ResponseStatus(HttpStatus.OK)
-    public EventRequestStatusUpdateResult updateRequestsStatus(@PathVariable(PV_USER_ID) Long userId,
-                                                               @PathVariable(PV_EVENT_ID) Long eventId,
+    public EventRequestStatusUpdateResult updateRequestsStatus(@PathVariable Long userId,
+                                                               @PathVariable Long eventId,
                                                                @RequestBody EventRequestStatusUpdateRequest request) {
-        log.info("Получен запрос PATCH /users/{}/events/{} на обновление заявок в статус {}", userId, eventId, request.getStatus());
-        return service.updateRequestsStatus(userId, eventId, request);
+        log.info("PATCH /users/{}/events/{} new status = {}", userId, eventId, request.getStatus());
+        return personalUserEventService.updateRequestsStatus(userId, eventId, request);
     }
 }

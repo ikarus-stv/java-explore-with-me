@@ -1,4 +1,4 @@
-package ru.practicum.ewm.base.util.Statistic;
+package ru.practicum.ewm.base.util;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AccessLevel;
@@ -34,7 +34,7 @@ public class Statistic {
         this.serviceName = serviceName;
     }
 
-    private List<Long> getDynamicPartOfUri(ViewStatsDto statsDto) {
+    private List<Long> getEventList(ViewStatsDto statsDto) {
         if (statsDto.getUri() != null && !statsDto.getUri().isEmpty() && !statsDto.getUri().equals(" ")) {
             return Arrays.stream(statsDto.getUri().split("/"))
                     .skip(1L)
@@ -46,35 +46,43 @@ public class Statistic {
         return List.of();
     }
 
-    private List<String> createUris(Set<Event> events) {
-        return events.stream().map(elem -> String.format("/events/%d", elem.getId())).toList();
-    }
-
-    private LocalDateTime findStartDate(Set<Event> events) {
-        return events.stream()
+    private LocalDateTime findMinDate(Set<Event> events) {
+        LocalDateTime defValue = LocalDateTime.of(1900, 1, 1, 0, 0, 0);
+        LocalDateTime result = events.stream()
                 .map(Event::getPublishedOn)
                 .min(LocalDateTime::compareTo)
-                .orElse(LocalDateTime.of(1900, 1, 1, 0, 0, 0));
+                .orElse(defValue);
+        return result;
     }
 
-    private LocalDateTime findEndDate(Set<Event> events) {
-        return events.stream()
+    private LocalDateTime findMaxDate(Set<Event> events) {
+        LocalDateTime defValue = LocalDateTime.of(9999, 12, 31, 23, 59, 59);
+        LocalDateTime result = events.stream()
                 .map(Event::getEventDate)
                 .max(LocalDateTime::compareTo)
-                .orElse(LocalDateTime.of(9999, 12, 31, 23, 59, 59));
+                .orElse(defValue);
+        return result;
     }
 
     private Map<Long, Long> findStatistic(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
-        return statsClient.get(start, end, uris, unique)
+        log.info("*** Call  statsClient.get(start, end, uris, unique)");
+        log.info("*** Call  statsClient.get start = {} ", start);
+        log.info("*** Call  statsClient.get end = {} ", end);
+        log.info("*** Call  statsClient.get uris = {} ", uris);
+        log.info("*** Call  statsClient.get unique = {}", unique);
+        List<ViewStatsDto> viewStatsDtoList = statsClient.get(start, end, uris, unique);
+
+        log.info("statsClient.get returns {}", viewStatsDtoList);
+
+        return viewStatsDtoList
                 .stream()
-                .collect(Collectors.toMap(elem -> getDynamicPartOfUri(elem).getFirst(), ViewStatsDto::getHits));
+                .collect(Collectors.toMap(elem -> getEventList(elem).getFirst(), ViewStatsDto::getHits));
     }
 
     public Map<Long, Long> getStatistic(Set<Event> events, Boolean unique) {
-        LocalDateTime rangeStart = findStartDate(events);
-        LocalDateTime rangeEnd = findEndDate(events);
-        List<String> uris = createUris(events);
-
+        LocalDateTime rangeStart = findMinDate(events);
+        LocalDateTime rangeEnd = findMaxDate(events);
+        List<String> uris = events.stream().map(elem -> "/events/" + elem.getId()).toList();
         return findStatistic(rangeStart, rangeEnd, uris, unique);
     }
 
@@ -88,6 +96,8 @@ public class Statistic {
         dto.setUri(request.getRequestURI());
         dto.setIp(request.getRemoteAddr());
         dto.setTimestamp(LocalDateTime.now());
+        log.info("*** Call statsClient.save(dto) {}", dto);
+
         statsClient.save(dto);
     }
 }

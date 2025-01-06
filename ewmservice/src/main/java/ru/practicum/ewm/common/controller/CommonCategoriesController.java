@@ -7,7 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.base.dto.CategoryDto;
-import ru.practicum.ewm.common.service.category.CommonCategoryService;
+import ru.practicum.ewm.common.service.CommonCategoryService;
 
 import java.util.Collection;
 
@@ -16,23 +16,21 @@ import java.util.Collection;
 @RestController
 @RequestMapping("/categories")
 public class CommonCategoriesController {
-    private static final String M_CAT_ID = "/{cat-id}";
-    private static final String PV_CAT_ID = "cat-id";
 
-    private final CommonCategoryService service;
+    private final CommonCategoryService commonCategoryService;
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public Collection<CategoryDto> getAll(@RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
                                           @RequestParam(defaultValue = "10") @Positive Integer size) {
-        log.info("Получен запрос GET /categories с параметрами from = {}, size = {}", from, size);
-        return service.getAll(from, size);
+        log.info("GET /categories  from = {}, size = {}", from, size);
+        return commonCategoryService.getAll(from, size);
     }
 
-    @GetMapping(M_CAT_ID)
+    @GetMapping("/{catId}")
     @ResponseStatus(HttpStatus.OK)
-    public CategoryDto get(@PathVariable(PV_CAT_ID) Long catId) {
-        log.info("Получен запрос GET /categories/{}", catId);
-        return service.get(catId);
+    public CategoryDto get(@PathVariable Long catId) {
+        log.info("GET /categories/{}", catId);
+        return commonCategoryService.get(catId);
     }
 }

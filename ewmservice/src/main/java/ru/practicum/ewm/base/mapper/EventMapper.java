@@ -3,9 +3,9 @@ package ru.practicum.ewm.base.mapper;
 import lombok.experimental.UtilityClass;
 import org.mapstruct.factory.Mappers;
 import ru.practicum.ewm.base.dto.*;
-import ru.practicum.ewm.base.enums.AdminStateAction;
-import ru.practicum.ewm.base.enums.States;
-import ru.practicum.ewm.base.enums.UserStateAction;
+import ru.practicum.ewm.base.enums.AdminEventAction;
+import ru.practicum.ewm.base.enums.EventStates;
+import ru.practicum.ewm.base.enums.UserEventAction;
 import ru.practicum.ewm.base.model.Category;
 import ru.practicum.ewm.base.model.Event;
 import ru.practicum.ewm.base.model.Location;
@@ -31,124 +31,102 @@ public class EventMapper {
         event.setEventDate(dto.getEventDate());
         event.setInitiator(initiator);
         event.setLocation(new Location(dto.getLocation().getLat(), dto.getLocation().getLon()));
-
-        if (dto.hasPaid()) {
-            event.setPaid(dto.getPaid());
-        } else {
-            event.setPaid(Boolean.FALSE);
-        }
-
-        if (dto.hasParticipantLimit()) {
-            event.setParticipantLimit(dto.getParticipantLimit());
-        } else {
-            event.setParticipantLimit(0L);
-        }
-
-        if (dto.hasRequestModeration()) {
-            event.setRequestModeration(dto.getRequestModeration());
-        } else {
-            event.setRequestModeration(Boolean.TRUE);
-        }
-
+        event.setPaid(dto.hasPaid() ? dto.getPaid() : Boolean.FALSE);
+        event.setParticipantLimit(dto.hasParticipantLimit() ? dto.getParticipantLimit() : 0L);
+        event.setRequestModeration(dto.hasRequestModeration() ? dto.getRequestModeration() : Boolean.TRUE);
         event.setPublishedOn(LocalDateTime.now());
-        event.setState(States.PENDING);
+        event.setState(EventStates.PENDING);
         event.setTitle(dto.getTitle());
         event.setViews(0L);
-
         return event;
     }
 
-    public static Event updateAdminFields(Event event, UpdateEventAdminRequest request, Category category) {
-        if (request.hasAnnotation()) {
-            event.setAnnotation(request.getAnnotation());
+    public static Event updateAdminFields(Event event, UpdateEventAdminRequest updateEventAdminRequest,
+                                          Category category) {
+        if (updateEventAdminRequest.hasAnnotation()) {
+            event.setAnnotation(updateEventAdminRequest.getAnnotation());
         }
-
         if (category != null) {
             event.setCategory(category);
         }
-
-        if (request.hasDescription()) {
-            event.setDescription(request.getDescription());
+        if (updateEventAdminRequest.hasDescription()) {
+            event.setDescription(updateEventAdminRequest.getDescription());
         }
-
-        if (request.hasEventDate()) {
-            event.setEventDate(request.getEventDate());
+        if (updateEventAdminRequest.hasEventDate()) {
+            event.setEventDate(updateEventAdminRequest.getEventDate());
         }
-
-        if (request.hasLocation()) {
-            event.setLocation(new Location(request.getLocation().getLat(), request.getLocation().getLon()));
+        if (updateEventAdminRequest.hasLocation()) {
+            event.setLocation(new Location(updateEventAdminRequest.getLocation().getLat(),
+                    updateEventAdminRequest.getLocation().getLon()));
         }
-
-        if (request.hasPaid()) {
-            event.setPaid(request.getPaid());
+        if (updateEventAdminRequest.hasPaid()) {
+            event.setPaid(updateEventAdminRequest.getPaid());
         }
-
-        if (request.hasParticipantLimit()) {
-            event.setParticipantLimit(request.getParticipantLimit());
+        if (updateEventAdminRequest.hasParticipantLimit()) {
+            event.setParticipantLimit(updateEventAdminRequest.getParticipantLimit());
         }
-
-        if (request.hasRequestModeration()) {
-            event.setRequestModeration(request.getRequestModeration());
+        if (updateEventAdminRequest.hasRequestModeration()) {
+            event.setRequestModeration(updateEventAdminRequest.getRequestModeration());
         }
-
-        if (request.hasTitle()) {
-            event.setTitle(request.getTitle());
+        if (updateEventAdminRequest.hasTitle()) {
+            event.setTitle(updateEventAdminRequest.getTitle());
         }
-
-        if (request.hasStateAction() && request.getStateAction().equals(AdminStateAction.PUBLISH_EVENT)) {
-            event.setState(States.PUBLISHED);
+        if (updateEventAdminRequest.hasStateAction() &&
+                updateEventAdminRequest.getStateAction().equals(AdminEventAction.PUBLISH_EVENT)) {
+            event.setState(EventStates.PUBLISHED);
         }
-
-        if (request.hasStateAction() && request.getStateAction().equals(AdminStateAction.REJECT_EVENT)) {
-            event.setState(States.CANCELED);
+        if (updateEventAdminRequest.hasStateAction() &&
+                updateEventAdminRequest.getStateAction().equals(AdminEventAction.REJECT_EVENT)) {
+            event.setState(EventStates.CANCELED);
         }
-
         return event;
     }
 
-    public static Event updateUserFields(Event event, UpdateEventUserRequest request, Category category) {
-        if (request.hasAnnotation()) {
-            event.setAnnotation(request.getAnnotation());
+    public static Event updateUserFields(Event event, UpdateEventUserRequest updateEventUserRequest,
+                                         Category category) {
+        if (updateEventUserRequest.hasAnnotation()) {
+            event.setAnnotation(updateEventUserRequest.getAnnotation());
         }
 
-        if (request.hasCategory()) {
+        if (updateEventUserRequest.hasCategory()) {
             event.setCategory(category);
         }
 
-        if (request.hasDescription()) {
-            event.setDescription(request.getDescription());
+        if (updateEventUserRequest.hasDescription()) {
+            event.setDescription(updateEventUserRequest.getDescription());
         }
 
-        if (request.hasEventDate()) {
-            event.setEventDate(request.getEventDate());
+        if (updateEventUserRequest.hasEventDate()) {
+            event.setEventDate(updateEventUserRequest.getEventDate());
         }
 
-        if (request.hasLocation()) {
-            event.setLocation(new Location(request.getLocation().getLat(), request.getLocation().getLon()));
+        if (updateEventUserRequest.hasLocation()) {
+            event.setLocation(new Location(updateEventUserRequest.getLocation().getLat(),
+                    updateEventUserRequest.getLocation().getLon()));
         }
 
-        if (request.hasPaid()) {
-            event.setPaid(request.getPaid());
+        if (updateEventUserRequest.hasPaid()) {
+            event.setPaid(updateEventUserRequest.getPaid());
         }
 
-        if (request.hasParticipantLimit()) {
-            event.setParticipantLimit(request.getParticipantLimit());
+        if (updateEventUserRequest.hasParticipantLimit()) {
+            event.setParticipantLimit(updateEventUserRequest.getParticipantLimit());
         }
 
-        if (request.hasRequestModeration()) {
-            event.setRequestModeration(request.getRequestModeration());
+        if (updateEventUserRequest.hasRequestModeration()) {
+            event.setRequestModeration(updateEventUserRequest.getRequestModeration());
         }
 
-        if (request.hasTitle()) {
-            event.setTitle(request.getTitle());
+        if (updateEventUserRequest.hasTitle()) {
+            event.setTitle(updateEventUserRequest.getTitle());
         }
 
-        if (request.hasStateAction() && request.getStateAction().equals(UserStateAction.SEND_TO_REVIEW)) {
-            event.setState(States.PENDING);
+        if (updateEventUserRequest.hasStateAction() && updateEventUserRequest.getStateAction().equals(UserEventAction.SEND_TO_REVIEW)) {
+            event.setState(EventStates.PENDING);
         }
 
-        if (request.hasStateAction() && request.getStateAction().equals(UserStateAction.CANCEL_REVIEW)) {
-            event.setState(States.CANCELED);
+        if (updateEventUserRequest.hasStateAction() && updateEventUserRequest.getStateAction().equals(UserEventAction.CANCEL_REVIEW)) {
+            event.setState(EventStates.CANCELED);
         }
 
         return event;
@@ -158,7 +136,7 @@ public class EventMapper {
         EventFullDto dto = new EventFullDto();
         dto.setId(entity.getId());
         dto.setAnnotation(entity.getAnnotation());
-        dto.setCategory(CategoryMapper.mapToDto(entity.getCategory()));
+        dto.setCategory(Mappers.getMapper(CategoryMapper.class).mapToDto(entity.getCategory()));
         dto.setConfirmedRequests(entity.getConfirmedRequests());
         dto.setCreatedOn(entity.getCreatedOn());
         dto.setDescription(entity.getDescription());
@@ -187,7 +165,7 @@ public class EventMapper {
         EventShortDto dto = new EventShortDto();
         dto.setId(entity.getId());
         dto.setAnnotation(entity.getAnnotation());
-        dto.setCategory(CategoryMapper.mapToDto(entity.getCategory()));
+        dto.setCategory(Mappers.getMapper(CategoryMapper.class).mapToDto(entity.getCategory()));
         dto.setConfirmedRequests(entity.getConfirmedRequests());
         dto.setEventDate(entity.getEventDate());
         dto.setInitiator(Mappers.getMapper(UserMapper.class).mapToShortDto(entity.getInitiator()));

@@ -2,7 +2,7 @@ package ru.practicum.ewm.base.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-import ru.practicum.ewm.base.enums.Statuses;
+import ru.practicum.ewm.base.enums.EventStatuses;
 
 import java.time.LocalDateTime;
 
@@ -16,11 +16,11 @@ import java.time.LocalDateTime;
 @Table(name = "requests")
 public class Request {
     @Id
-    @Column(name = "id", nullable = false)
+    @Column
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "created")
+    @Column
     private LocalDateTime created;
 
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -34,6 +34,6 @@ public class Request {
     private User requester;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status")
-    private Statuses status;
+    @Column
+    private EventStatuses status;
 }

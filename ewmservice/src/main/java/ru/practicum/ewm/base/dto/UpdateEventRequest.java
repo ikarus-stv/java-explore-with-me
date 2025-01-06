@@ -4,10 +4,8 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.*;
-import lombok.experimental.FieldDefaults;
 import org.hibernate.validator.constraints.Length;
 import ru.practicum.ewm.base.dto.LocationDto;
-import ru.practicum.ewm.base.util.IfNotNullIsNotEmpty.IfNotNullIsNotEmpty;
 
 import java.time.LocalDateTime;
 
@@ -16,69 +14,65 @@ import java.time.LocalDateTime;
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE)
-public abstract class UpdateEventRequest {
-    @IfNotNullIsNotEmpty
+public class UpdateEventRequest {
     @Length(min = 20, max = 2000)
-    String annotation;
+    private String annotation;
 
-    @Positive(message = "ID категории не может быть отрицательным числом")
-    Long category;
+    @Positive(message = "ID must be positive")
+    private Long category;
 
-    @IfNotNullIsNotEmpty
     @Length(min = 20, max = 7000)
-    String description;
+    private String description;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-    LocalDateTime eventDate;
+    private LocalDateTime eventDate;
 
     @Valid
-    LocationDto location;
+    private LocationDto location;
 
-    Boolean paid;
+    private Boolean paid;
 
-    @PositiveOrZero(message = "Ограничение на количество участников не может быть отрицательным числом")
-    Long participantLimit;
+    @PositiveOrZero(message = "participantLimit can't be negative")
+    private Long participantLimit;
 
-    Boolean requestModeration;
+    private Boolean requestModeration;
 
-    @IfNotNullIsNotEmpty
     @Length(min = 3, max = 120)
-    String title;
+    private String title;
 
     public boolean hasAnnotation() {
-        return this.annotation != null;
+        return annotation != null;
     }
 
     public boolean hasCategory() {
-        return this.category != null;
+        return category != null;
     }
 
     public boolean hasDescription() {
-        return this.description != null;
+        return description != null;
     }
 
     public boolean hasEventDate() {
-        return this.eventDate != null;
+        return eventDate != null;
     }
 
     public boolean hasLocation() {
-        return this.location != null;
+        return location != null;
     }
 
     public boolean hasPaid() {
-        return this.paid != null;
+        return paid != null;
     }
 
     public boolean hasParticipantLimit() {
-        return this.participantLimit != null;
+        return participantLimit != null;
     }
 
     public boolean hasRequestModeration() {
-        return this.requestModeration != null;
+        return requestModeration != null;
     }
 
     public boolean hasTitle() {
-        return this.title != null;
+        return title != null;
     }
 }

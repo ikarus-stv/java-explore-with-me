@@ -2,7 +2,6 @@ package ru.practicum.ewm.base.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
-import lombok.experimental.FieldDefaults;
 import ru.practicum.ewm.base.dto.EventShortDto;
 
 import java.util.Set;
@@ -13,14 +12,10 @@ import java.util.Set;
 @EqualsAndHashCode(of = {"id"})
 @AllArgsConstructor
 @NoArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE)
 public class CompilationDto {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    Long id;
-
-    Set<EventShortDto> events;
-
-    Boolean pinned;
-
-    String title;
+    private Long id;
+    private Set<EventShortDto> events;
+    private Boolean pinned;
+    private String title;
 }

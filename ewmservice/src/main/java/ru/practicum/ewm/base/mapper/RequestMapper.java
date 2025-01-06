@@ -1,8 +1,7 @@
 package ru.practicum.ewm.base.mapper;
 
-import lombok.experimental.UtilityClass;
 import ru.practicum.ewm.base.dto.ParticipationRequestDto;
-import ru.practicum.ewm.base.enums.Statuses;
+import ru.practicum.ewm.base.enums.EventStatuses;
 import ru.practicum.ewm.base.model.Event;
 import ru.practicum.ewm.base.model.Request;
 import ru.practicum.ewm.base.model.User;
@@ -11,29 +10,29 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@UtilityClass
+
 public class RequestMapper {
     public static Request mapToEntity(Event event, User requester) {
-        Request request = new Request();
+        Request result = new Request();
 
-        request.setEvent(event);
-        request.setRequester(requester);
-        request.setCreated(LocalDateTime.now());
-        request.setStatus(!event.getRequestModeration() || event.getParticipantLimit().equals(0L) ? Statuses.CONFIRMED : Statuses.PENDING);
+        result.setEvent(event);
+        result.setRequester(requester);
+        result.setCreated(LocalDateTime.now());
+        result.setStatus(!event.getRequestModeration() || event.getParticipantLimit().equals(0L) ? EventStatuses.CONFIRMED : EventStatuses.PENDING);
 
-        return request;
+        return result;
     }
 
     public static ParticipationRequestDto mapToDto(Request request) {
-        ParticipationRequestDto dto = new ParticipationRequestDto();
+        ParticipationRequestDto participationRequestDto = new ParticipationRequestDto();
 
-        dto.setId(request.getId());
-        dto.setEvent(request.getEvent().getId());
-        dto.setRequester(request.getRequester().getId());
-        dto.setCreated(request.getCreated());
-        dto.setStatus(request.getStatus());
+        participationRequestDto.setId(request.getId());
+        participationRequestDto.setEvent(request.getEvent().getId());
+        participationRequestDto.setRequester(request.getRequester().getId());
+        participationRequestDto.setCreated(request.getCreated());
+        participationRequestDto.setStatus(request.getStatus());
 
-        return dto;
+        return participationRequestDto;
     }
 
     public static List<ParticipationRequestDto> mapToListDto(List<Request> listEntity) {

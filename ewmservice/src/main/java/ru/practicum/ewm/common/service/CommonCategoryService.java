@@ -1,11 +1,12 @@
-package ru.practicum.ewm.common.service.category;
+package ru.practicum.ewm.common.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.ewm.base.dto.CategoryDto;
-import ru.practicum.ewm.base.exceptions.NotFoundException;
+import ru.practicum.ewm.base.exceptions.DataNotFoundException;
 import ru.practicum.ewm.base.mapper.CategoryMapper;
 import ru.practicum.ewm.base.model.Category;
 import ru.practicum.ewm.base.repository.CategoryRepository;
@@ -15,27 +16,23 @@ import java.util.List;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class CommonCategoryService  {
     private final CategoryRepository categoryRepository;
-
-    public CommonCategoryService(CategoryRepository categoryRepository) {
-        this.categoryRepository = categoryRepository;
-    }
+    private final CategoryMapper mapper;
 
     public Category findById(Long catId) {
         return categoryRepository.findById(catId)
-                .orElseThrow(() -> new NotFoundException(String.format("Категория c ID %d не найдена", catId)));
+                .orElseThrow(() -> new DataNotFoundException("Category not found, ID = " + catId));
     }
 
     public Collection<CategoryDto> getAll(Integer from, Integer size) {
-        PageRequest pageRequest = PageRequest.of(from / size, size, Sort.by(Sort.Direction.DESC, "id"));
-
-        List<Category> test = categoryRepository.findAll(pageRequest).toList();
-
-        return CategoryMapper.mapToListDto(test);
+        PageRequest request = PageRequest.of(from / size, size, Sort.by(Sort.Direction.DESC, "id"));
+        List<Category> list = categoryRepository.findAll(request).toList();
+        return mapper.mapToListDto(list);
     }
 
     public CategoryDto get(Long catId) {
-        return CategoryMapper.mapToDto(findById(catId));
+        return mapper.mapToDto(findById(catId));
     }
 }

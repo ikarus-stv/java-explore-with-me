@@ -10,8 +10,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.practicum.ewm.base.exceptions.*;
 
-import java.util.Objects;
-
 @Slf4j
 @RestControllerAdvice
 public class ErrorHandler {
@@ -21,47 +19,38 @@ public class ErrorHandler {
         log.error(HttpStatus.CONFLICT.getReasonPhrase(), e.getLocalizedMessage(), e.getMessage());
         return new ErrorResponse(
                 HttpStatus.CONFLICT.toString(),
-                "Нарушено ограничение целостности",
+                "ConflictException",
                 e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponse handleConflictException(final ConditionsNotMetException e) {
+    public ErrorResponse handleIntegrityException(final IntegrityException e) {
         log.error(HttpStatus.CONFLICT.getReasonPhrase(), e.getLocalizedMessage(), e.getMessage());
         return new ErrorResponse(
                 HttpStatus.CONFLICT.toString(),
-                "Не соблюдаются условия для вызываемой операции",
+                "IntegrityException",
                 e.getMessage());
     }
 
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponse handleConflictException(final DuplicatedDataException e) {
-        log.error(HttpStatus.CONFLICT.getReasonPhrase(), e.getLocalizedMessage(), e.getMessage());
-        return new ErrorResponse(
-                HttpStatus.CONFLICT.toString(),
-                "Дублирование ключевого значения",
-                e.getMessage());
-    }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponse handleConflictException(final DataIntegrityViolationException e) {
+    public ErrorResponse handleDataIntegrityViolationException(final DataIntegrityViolationException e) {
         log.error(HttpStatus.CONFLICT.getReasonPhrase(), e.getLocalizedMessage(), e.getMessage());
         return new ErrorResponse(
                 HttpStatus.CONFLICT.toString(),
-                "Ошибка целостности данных",
+                "DataIntegrityViolationException",
                 e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handleNotFoundException(final NotFoundException e) {
+    public ErrorResponse handleDataNotFoundException(final DataNotFoundException e) {
         log.error(HttpStatus.NOT_FOUND.toString(), e.getLocalizedMessage(), e.getMessage());
         return new ErrorResponse(
                 HttpStatus.NOT_FOUND.toString(),
-                "Объект запроса не найден",
+                "DataNotFoundException",
                 e.getMessage());
     }
 
@@ -71,31 +60,28 @@ public class ErrorHandler {
         log.error(HttpStatus.BAD_REQUEST.toString(), e.getLocalizedMessage(), e.getMessage());
         return new ErrorResponse(
                 HttpStatus.BAD_REQUEST.toString(),
-                "Неправильно составлен запрос",
+                "BadRequestException",
                 e.getMessage());
     }
 
 
-    // Для валидации через jakarta.validation.constraints
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse validationMethodArgumentNotValidException(final MethodArgumentNotValidException e) {
         log.error(HttpStatus.BAD_REQUEST.toString(), e.getLocalizedMessage(), e.getMessage());
-        String field = Objects.requireNonNull(e.getFieldError()).getField();
         return new ErrorResponse(
                 HttpStatus.BAD_REQUEST.toString(),
-                "Неправильно составлен запрос",
-                String.format("Поле: %s. Некорректное значения поля. Значение: %s", field, e.getFieldValue(field)));
+                "MethodArgumentNotValidException",
+                e.getMessage());
     }
 
-    // Для валидации через jakarta.validation.constraints
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleConstraintViolationException(final ConstraintViolationException e) {
         log.error(HttpStatus.BAD_REQUEST.toString(), e.getLocalizedMessage(), e.getMessage());
         return new ErrorResponse(
                 HttpStatus.BAD_REQUEST.toString(),
-                "Неправильно составлен запрос",
+                "ConstraintViolationException",
                 e.getMessage());
     }
 
@@ -104,7 +90,7 @@ public class ErrorHandler {
     public ErrorResponse handleThrowable(final Throwable e) {
         log.error(HttpStatus.INTERNAL_SERVER_ERROR.toString(), e.getLocalizedMessage(), e.getMessage());
         return new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.toString(),
-                "Ошибка сервера",
+                "Throwable",
                 e.getMessage());
     }
 }

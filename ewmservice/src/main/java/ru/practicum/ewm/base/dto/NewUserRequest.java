@@ -11,12 +11,12 @@ import org.hibernate.validator.constraints.Length;
 @AllArgsConstructor
 @NoArgsConstructor
 public class NewUserRequest {
-    @NotBlank(message = "E-mail должен быть указан")
-    @Email(message = "E-mail должен быть в формате name@somedomain.ru")
+    @NotBlank(message = "email expected")
+    @Email(message = "Invalid email")
     @Length(min = 6, max = 254)
     private String email;
 
-    @NotBlank(message = "Имя пользователя должно быть указано")
+    @NotBlank(message = "username expected")
     @Length(min = 2, max = 250)
     private String name;
 }

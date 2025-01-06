@@ -7,7 +7,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.ewm.base.dto.NewUserRequest;
 import ru.practicum.ewm.base.dto.UserDto;
-import ru.practicum.ewm.base.exceptions.NotFoundException;
+import ru.practicum.ewm.base.exceptions.DataNotFoundException;
 import ru.practicum.ewm.base.mapper.UserMapper;
 import ru.practicum.ewm.base.model.User;
 import ru.practicum.ewm.base.repository.UserRepository;
@@ -25,7 +25,7 @@ public class AdminUserService {
 
     private User findById(Long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("User nit found " + userId));
+                .orElseThrow(() -> new DataNotFoundException("User nit found " + userId));
     }
 
     public UserDto save(NewUserRequest request) {

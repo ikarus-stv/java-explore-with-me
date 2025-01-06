@@ -7,7 +7,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.*;
-import lombok.experimental.FieldDefaults;
 import org.hibernate.validator.constraints.Length;
 import ru.practicum.ewm.base.dto.LocationDto;
 
@@ -18,48 +17,47 @@ import java.time.LocalDateTime;
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE)
 public class NewEventDto {
-    @NotBlank(message = "Краткое описание события должно существовать и не быть пустым")
+    @NotBlank(message = "annotation expected")
     @Length(min = 20, max = 2000)
-    String annotation;
+    private String annotation;
 
     @NotNull
-    @Positive(message = "ID категории не может быть отрицательным числом")
-    Long category;
+    @Positive(message = "ID must be positive")
+    private Long category;
 
-    @NotBlank(message = "Не задано полное описание события")
+    @NotBlank(message = "description expected")
     @Length(min = 20, max = 7000)
-    String description;
+    private String description;
 
-    @NotNull(message = "Не задана дата проведения события")
+    @NotNull(message = "eventDate expected")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-    LocalDateTime eventDate;
+    private LocalDateTime eventDate;
 
     @Valid
-    @NotNull(message = "Не указаны координаты места проведения события")
-    LocationDto location;
+    @NotNull(message = "Location expected")
+    private LocationDto location;
 
-    Boolean paid;
+    private Boolean paid;
 
-    @PositiveOrZero(message = "Ограничение на количество участников не может быть отрицательным числом")
-    Long participantLimit;
+    @PositiveOrZero
+    private Long participantLimit;
 
-    Boolean requestModeration;
+    private Boolean requestModeration;
 
-    @NotBlank(message = "Заголовок события должно существовать и не быть пустым")
+    @NotBlank(message = "title expected")
     @Length(min = 3, max = 120)
-    String title;
+    private String title;
 
     public boolean hasPaid() {
-        return this.paid != null;
+        return paid != null;
     }
 
     public boolean hasParticipantLimit() {
-        return this.participantLimit != null;
+        return participantLimit != null;
     }
 
     public boolean hasRequestModeration() {
-        return this.requestModeration != null;
+        return requestModeration != null;
     }
 }
