@@ -14,7 +14,7 @@ public abstract class CommentMapper {
 
     public abstract  List<CommentDto> mapToListDto(List<Comment> listEntity);
 
-    public static Comment updateFields(Comment entity, NewCommentDto newCommentDto) {
+    public Comment updateFields(Comment entity, NewCommentDto newCommentDto) {
         entity.setContent(newCommentDto.getContent());
         return entity;
     }

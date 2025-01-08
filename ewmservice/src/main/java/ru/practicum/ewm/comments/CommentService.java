@@ -29,16 +29,17 @@ public class CommentService {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new DataNotFoundException(String.format("Event not found id=" +  eventId)));
 
-        userRepository.findById(userId)
-                .orElseThrow(() -> new DataNotFoundException("User not found id=" + userId));
+        if (!userRepository.existsById(userId)) {
+            throw new DataNotFoundException("User not found id=" + userId);
+        }
 
         if (!event.getState().equals(EventStates.PUBLISHED)) {
             throw new BadRequestException("Comments can be created only for published events.");
         }
 
         Comment comment = mapper.mapToEntity(newCommentDto);
-        comment.setAuthor(userId);
-        comment.setEvent(eventId);
+        comment.setAuthorId(userId);
+        comment.setEventId(eventId);
         comment.setCreateDateTime(LocalDateTime.now());
 
         comment = commentRepository.save(comment);
@@ -59,11 +60,11 @@ public class CommentService {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new DataNotFoundException("Comment not found id=" + commentId));
 
-        if (!comment.getEvent().equals(eventId)) {
+        if (!comment.getEventId().equals(eventId)) {
             throw new BadRequestException("Comments is for other event");
         }
 
-        CommentMapper.updateFields(comment, newCommentDto);
+        mapper.updateFields(comment, newCommentDto);
         commentRepository.save(comment);
         return mapper.mapToDto(comment);
     }
@@ -82,7 +83,7 @@ public class CommentService {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new DataNotFoundException("Comment not found id=" + commentId));
 
-        if (!comment.getAuthor().equals(author.getId())) {
+        if (!comment.getAuthorId().equals(author.getId())) {
             throw new BadRequestException("Only author can delete comment");
         }
         commentRepository.deleteById(commentId);

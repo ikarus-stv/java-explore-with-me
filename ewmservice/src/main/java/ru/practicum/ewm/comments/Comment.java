@@ -24,10 +24,10 @@ public class Comment {
     private String content;
 
     @Column(name = "author_id", nullable = false)
-    private Long author;
+    private Long authorId;
 
     @Column(name = "event_id", nullable = false)
-    private Long event;
+    private Long eventId;
 
     @Column(name = "create_datetime", nullable = false)
     private LocalDateTime createDateTime;
