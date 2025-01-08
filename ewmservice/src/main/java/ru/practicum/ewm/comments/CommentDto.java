@@ -14,7 +14,7 @@ public class CommentDto {
     private Long id;
     private String content;
     private Long authorId;
-    private Long event;
+    private Long eventId;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createDateTime;
 }

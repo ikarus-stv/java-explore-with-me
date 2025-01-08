@@ -72,7 +72,7 @@ public class CommentService {
     public List<CommentDto> getByAuthor(Long userId, Integer from, Integer size) {
         userRepository.findById(userId)
                 .orElseThrow(() -> new DataNotFoundException("User not found id=" + userId));
-        List<Comment> comments = commentRepository.findAllByAuthor(userId, PageRequest.of(from / size, size));
+        List<Comment> comments = commentRepository.findAllByAuthorId(userId, PageRequest.of(from / size, size));
         return mapper.mapToListDto(comments);
     }
 
@@ -92,7 +92,7 @@ public class CommentService {
     public List<CommentDto> getByEvent(Long eventId, Integer from, Integer size) {
         eventRepository.findById(eventId)
                 .orElseThrow(() -> new DataNotFoundException(String.format("Event not found id=" +  eventId)));
-        return commentRepository.findAllByEvent(eventId, PageRequest.of(from / size, size))
+        return commentRepository.findAllByEventId(eventId, PageRequest.of(from / size, size))
                 .stream()
                 .map(mapper::mapToDto)
                 .collect(Collectors.toList());

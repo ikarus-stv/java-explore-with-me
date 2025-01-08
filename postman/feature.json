@@ -615,7 +615,6 @@
 									"pm.test(\"Message contains '... is for other event'\", function () {\r",
 									"    var jsonData = pm.response.json();\r",
 									"    pm.expect(jsonData.message, '\"message\" must be \"... is for other event\"').to.include(\"is for other event\");\r",
-									"\r",
 									"});\r",
 									""
 								],
